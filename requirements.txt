@@ -1,5 +1,5 @@
-streamlit==1.45.0
-mistralai==1.6.0
-pandas==2.2.3
-python-dotenv==1.1.0
-plotly==6.0.0
+streamlit
+mistralai
+pandas
+python-dotenv
+plotly
