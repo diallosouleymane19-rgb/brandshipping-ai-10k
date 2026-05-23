@@ -1,5 +1,5 @@
 streamlit
-mistralai>=1.0.0
+mistralai==1.6.0
 pandas
 python-dotenv
 plotly
