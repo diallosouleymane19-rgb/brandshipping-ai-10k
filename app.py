@@ -1,4 +1,8 @@
 import os
+st_files = []
+for root, dirs, files in os.walk("/mount/src/brandshipping-ai-10k"):
+    for f in files:
+        st_files.append(os.path.join(root, f))
 import json
 import requests
 import streamlit as st
