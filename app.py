@@ -1,35 +1,70 @@
 import os
-st_files = []
-for root, dirs, files in os.walk("/mount/src/brandshipping-ai-10k"):
-    for f in files:
-        st_files.append(os.path.join(root, f))
 import json
 import requests
 import streamlit as st
 from dotenv import load_dotenv
-from utils.prompts import SYSTEM_PROMPTS
-from utils.financial_model import calculer_projection, get_metrics_cibles
 
 load_dotenv()
 
-st.set_page_config(page_title="Brandshipping AI - Agent 10K", page_icon="🚀", layout="wide")
-st.title("🚀 Brandshipping AI - Agent 10K")
-st.caption("Produit · Offre · Créatives · Acquisition | Objectif : 10K€ net/mois")
+# =============================================================================
+# PROMPTS SYSTÈME (Intégré directement pour éviter les imports utils)
+# =============================================================================
+SYSTEM_PROMPTS = {
+    "strategie": """Tu es un expert en Brandshipping et e-commerce DTC. 
+    Ton objectif est d'aider l'utilisateur à atteindre 10K€/mois de bénéfice net.
+    Analyse sa niche et propose 3 produits avec une marge minimum x3.
+    Sois concret : donne des exemples de produits, de fournisseurs potentiels et justifie la marge.""",
+    
+    "offre": """Tu es un copywriter spécialisé en offres irrésistibles.
+    Crée un 'Bundle Premium' à forte valeur perçue basé sur le produit sélectionné.
+    Inclus : le nom de l'offre, le pricing psychologique, les bonus perçus, et l'argumentaire de vente principal.""",
+    
+    "creatives": """Tu es un directeur créatif UGC (User Generated Content).
+    Génère 5 scripts vidéo courts (15-30s) pour TikTok/Reels.
+    Format pour chaque script : Hook (3s) + Problème + Solution (Produit) + CTA.
+    Ton ton doit être authentique, dynamique et adapté à la Gen Z / Millennials.""",
+    
+    "acquisition": """Tu es un media buyer expert Meta Ads & TikTok Ads.
+    Élabore un plan de test sur 7 jours avec un budget défini.
+    Inclus : structure de campagne, audiences à tester, KPIs cibles (CPA, ROAS) et 20 angles publicitaires variés."""
+}
 
 # =============================================================================
-# FONCTION D'APPEL API MISTRAL (SANS SDK)
+# MODÈLE FINANCIER (Intégré directement)
+# =============================================================================
+def calculer_projection(ca_mensuel: float, marge_pct: float, cout_ads: float) -> dict:
+    marge_brute = ca_mensuel * marge_pct
+    resultat_net = marge_brute - cout_ads
+    progression = min((resultat_net / 10000) * 100, 100)
+    return {
+        "ca_mensuel": round(ca_mensuel, 2),
+        "marge_brute": round(marge_brute, 2),
+        "cout_ads": round(cout_ads, 2),
+        "resultat_net": round(resultat_net, 2),
+        "progression_10k": round(progression, 1)
+    }
+
+def get_metrics_cibles(prix_vente: float, cout_produit: float) -> dict:
+    marge_unitaire = prix_vente - cout_produit
+    marge_pct = marge_unitaire / prix_vente if prix_vente > 0 else 0
+    ca_necessaire = 10000 / (marge_pct - 0.35) if (marge_pct - 0.35) > 0 else float('inf')
+    commandes_jour = (ca_necessaire / prix_vente) / 30 if prix_vente > 0 else 0
+    return {
+        "marge_pct": round(marge_pct * 100, 1),
+        "ca_necessaire": round(ca_necessaire, 2),
+        "commandes_jour": round(commandes_jour, 1)
+    }
+
+# =============================================================================
+# APPEL API MISTRAL (Via requests - Sans SDK)
 # =============================================================================
 def call_mistral_api(system_prompt: str, user_prompt: str) -> str:
-    """Appelle l'API REST Mistral directement via requests."""
     api_key = st.secrets.get("MISTRAL_API_KEY") or os.getenv("MISTRAL_API_KEY")
     if not api_key:
         return "❌ Clé MISTRAL_API_KEY manquante dans Settings > Secrets"
     
     url = "https://api.mistral.ai/v1/chat/completions"
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {api_key}"
-    }
+    headers = {"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"}
     payload = {
         "model": "mistral-large-latest",
         "messages": [
@@ -44,14 +79,16 @@ def call_mistral_api(system_prompt: str, user_prompt: str) -> str:
         response.raise_for_status()
         data = response.json()
         return data["choices"][0]["message"]["content"]
-    except requests.exceptions.RequestException as e:
+    except Exception as e:
         return f"❌ Erreur API Mistral : {e}"
-    except (KeyError, IndexError) as e:
-        return f"❌ Format de réponse inattendu : {e}"
 
 # =============================================================================
-# COCKPIT IA (SIDEBAR)
+# INTERFACE STREAMLIT
 # =============================================================================
+st.set_page_config(page_title="Brandshipping AI - Agent 10K", page_icon="🚀", layout="wide")
+st.title("🚀 Brandshipping AI - Agent 10K")
+st.caption("Produit · Offre · Créatives · Acquisition | Objectif : 10K€ net/mois")
+
 with st.sidebar:
     st.header("📊 Cockpit IA")
     prix = st.number_input("Prix de vente (€)", value=89.0, step=5.0, min_value=1.0)
@@ -72,9 +109,6 @@ with st.sidebar:
     col2.metric("Progression 10K", f"{proj['progression_10k']}%")
     st.progress(min(proj['progression_10k'] / 100, 1.0))
 
-# =============================================================================
-# MODULES IA (ONGLETS)
-# =============================================================================
 tab1, tab2, tab3, tab4 = st.tabs(["🎯 Stratégie", "🎁 Offre", "🎬 Créatives", "📢 Acquisition"])
 
 with tab1:
