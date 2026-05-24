@@ -1,24 +1,28 @@
 """
 Brandshipping AI - Agent 10K
-Version Finale - Optimisée pour performances
+Version Ultra-Rapide - Fix connexion < 30s
 """
 import os
 import re
 import time
 import math
 import logging
+import socket
 from dataclasses import dataclass
 from typing import Optional
 from datetime import datetime
+from urllib.parse import urlparse
 
 import streamlit as st
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 from dotenv import load_dotenv
 
 load_dotenv()
 
 # =============================================================================
-# CONFIGURATION
+# CONFIGURATION - CONNEXION RAPIDE
 # =============================================================================
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -28,12 +32,19 @@ logger = logging.getLogger("brandshipping_ai")
 class Config:
     API_URL: str = "https://api.mistral.ai/v1/chat/completions"
     MODEL: str = "mistral-large-latest"
-    FALLBACK_MODEL: str = "mistral-medium-latest"  # Plus rapide si timeout
+    FALLBACK_MODEL: str = "mistral-medium-latest"
     TEMPERATURE: float = 0.7
-    TIMEOUT: int = 120
-    MAX_RETRIES: int = 3
-    RETRY_DELAY: float = 3.0
-    RETRY_BACKOFF: float = 2.5
+    MAX_TOKENS: int = 1500  # Réduit pour réponse plus rapide
+    
+    # ⬇️ TIMING CRITIQUE : Connexion rapide
+    CONNECT_TIMEOUT: float = 8.0      # 8s max pour connecter
+    READ_TIMEOUT: float = 45.0        # 45s max pour lire la réponse
+    TOTAL_TIMEOUT: float = 55.0       # Timeout global
+    
+    MAX_RETRIES: int = 2              # 2 retries max (pas 3)
+    RETRY_DELAY: float = 2.0        # Délai court
+    RETRY_BACKOFF: float = 2.0
+    
     OBJECTIF_10K: float = 10000.0
     SEUIL_ADS: float = 0.35
     MAX_INPUT: int = 500
@@ -42,30 +53,55 @@ class Config:
 cfg = Config()
 
 # =============================================================================
-# PROMPTS
+# SESSION REUTILISABLE (Évite reconnexion à chaque appel)
+# =============================================================================
+
+def get_session() -> requests.Session:
+    """Crée une session HTTP optimisée avec keep-alive"""
+    if 'http_session' not in st.session_state:
+        session = requests.Session()
+        
+        # Retry sur connexion/lecture seulement
+        retry_strategy = Retry(
+            total=cfg.MAX_RETRIES,
+            backoff_factor=cfg.RETRY_DELAY,
+            status_forcelist=[429, 500, 502, 503, 504],
+            allowed_methods=["POST"],
+            raise_on_status=False
+        )
+        
+        adapter = HTTPAdapter(
+            max_retries=retry_strategy,
+            pool_connections=5,
+            pool_maxsize=10
+        )
+        
+        session.mount("https://", adapter)
+        session.mount("http://", adapter)
+        
+        # Headers keep-alive
+        session.headers.update({
+            "Connection": "keep-alive",
+            "Accept-Encoding": "gzip, deflate"
+        })
+        
+        st.session_state.http_session = session
+        logger.info("Session HTTP créée avec keep-alive")
+    
+    return st.session_state.http_session
+
+# =============================================================================
+# PROMPTS (Raccourcis pour réponses plus rapides)
 # =============================================================================
 
 SYSTEM_PROMPTS = {
-    "strategie": """Tu es un expert en Brandshipping et e-commerce DTC. 
-Analyse la niche et propose 3 produits concrets avec marge minimum x3.
-Format: tableau markdown avec prix, coût, marge, fournisseurs.""",
+    "strategie": """Expert Brandshipping DTC. Analyse la niche, propose 3 produits concrets (nom, prix, coût, marge x3, 2 fournisseurs). Format: tableau markdown concis.""",
 
-    "offre": """Tu es un copywriter expert. Crée un Bundle Premium avec:
-- Nom accrocheur
-- Pricing psychologique (prix public / valeur / offre)
-- 3-5 bonus perçus
-- 3 arguments de vente
-- Garantie + CTA""",
+    "offre": """Copywriter expert. Bundle Premium: nom, pricing (public/valeur/offre), 3 bonus, 3 arguments, garantie, CTA. Format listé.""",
 
-    "creatives": """Directeur créatif UGC. Génère 5 scripts TikTok/Reels 15-30s.
-Format par script: Hook(3s) | Problème | Solution | CTA + text overlay + hashtags.""",
+    "creatives": """Directeur créatif UGC. 5 scripts TikTok 15-30s. Par script: Hook(3s)|Problème|Solution|CTA + text overlay + 3 hashtags. Format numéroté.""",
 
-    "acquisition": """Media buyer expert Meta/TikTok Ads. Plan test 7 jours:
-- Budget et KPIs cibles
-- 5-7 audiences
-- 20 angles publicitaires classés
-- Calendrier jour par jour
-- Checklist optimisation"""
+    "acquisition": """Media buyer Meta/TikTok. Plan 7 jours: budget, 5 audiences, 20 angles (émotion/logique/urgence/social/edu), calendrier, checklist kill/scale. Tableaux."""
 }
 
 # =============================================================================
@@ -80,9 +116,9 @@ def sanitize(text: str) -> str:
 
 def validate(text: str, min_len: int = 3) -> tuple[bool, str]:
     if not text or len(text.strip()) < min_len:
-        return False, f"Minimum {min_len} caractères requis"
+        return False, f"Min {min_len} caractères"
     if not re.search(r'[a-zA-Z]', text):
-        return False, "Doit contenir des lettres"
+        return False, "Lettres requises"
     return True, ""
 
 def check_injection(text: str) -> bool:
@@ -95,32 +131,23 @@ def check_injection(text: str) -> bool:
 
 @dataclass
 class Metrics:
-    marge_pct: float
-    ca_nec: float
-    cmd_jour: float
-    ok: bool
-    err: str = ""
+    marge_pct: float; ca_nec: float; cmd_jour: float; ok: bool; err: str = ""
 
 @dataclass
 class Projection:
-    ca: float
-    marge_brute: float
-    cout_ads: float
-    net: float
-    prog: float
-    profitable: bool
+    ca: float; marge_brute: float; cout_ads: float; net: float; prog: float; profitable: bool
 
 def calc_metrics(prix: float, cout: float) -> Metrics:
-    if prix <= 0: return Metrics(0, 0, 0, False, "Prix > 0€ requis")
-    if cout < 0: return Metrics(0, 0, 0, False, "Coût positif requis")
-    if cout >= prix: return Metrics(0, float('inf'), 0, False, "Coût >= Prix impossible")
+    if prix <= 0: return Metrics(0, 0, 0, False, "Prix > 0€")
+    if cout < 0: return Metrics(0, 0, 0, False, "Coût positif")
+    if cout >= prix: return Metrics(0, float('inf'), 0, False, "Coût >= Prix")
     
     marge_pct = (prix - cout) / prix
     marge_reelle = marge_pct - cfg.SEUIL_ADS
     
     if marge_reelle <= 0:
         return Metrics(round(marge_pct*100,1), float('inf'), 0, False, 
-                      f"Marge {marge_pct*100:.0f}% < {cfg.SEUIL_ADS*100:.0f}% requis")
+                      f"Marge {marge_pct*100:.0f}% < {cfg.SEUIL_ADS*100:.0f}%")
     
     ca_nec = cfg.OBJECTIF_10K / marge_reelle
     return Metrics(round(marge_pct*100,1), round(ca_nec,2), round((ca_nec/prix)/30,1), True)
@@ -132,77 +159,127 @@ def calc_projection(ca: float, marge_pct: float, cout_ads: float) -> Projection:
                      round(net,2), round(min(net/cfg.OBJECTIF_10K*100,100),1), net>0)
 
 # =============================================================================
-# API MISTRAL - OPTIMISÉ
+# API MISTRAL - ULTRA RAPIDE
 # =============================================================================
 
 class APIError(Exception): pass
 
 def get_key() -> str:
     key = st.secrets.get("MISTRAL_API_KEY") or os.getenv("MISTRAL_API_KEY")
-    if not key: raise APIError("Clé MISTRAL_API_KEY manquante dans Secrets ou .env")
+    if not key: raise APIError("Clé MISTRAL_API_KEY manquante")
     return key
 
+def test_dns_resolution() -> bool:
+    """Test rapide si api.mistral.ai est joignable"""
+    try:
+        socket.getaddrinfo("api.mistral.ai", None, socket.AF_INET, socket.SOCK_STREAM)
+        return True
+    except:
+        return False
+
 def call_api(system: str, user: str, use_fallback: bool = False) -> str:
-    """Appel API avec retry, fallback modèle, et gestion timeout avancée"""
+    """Appel API optimisé pour connexion < 30s"""
+    
+    # Test DNS rapide avant appel
+    if not test_dns_resolution():
+        raise APIError("🌐 Impossible de résoudre api.mistral.ai - Vérifiez votre connexion internet")
+    
     key = get_key()
     model = cfg.FALLBACK_MODEL if use_fallback else cfg.MODEL
     
-    headers = {"Content-Type": "application/json", "Authorization": f"Bearer {key}"}
+    session = get_session()
+    
     payload = {
         "model": model,
-        "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
+        "messages": [
+            {"role": "system", "content": system},
+            {"role": "user", "content": user}
+        ],
         "temperature": cfg.TEMPERATURE,
-        "max_tokens": 2000  # Limite pour réponses plus rapides
+        "max_tokens": cfg.MAX_TOKENS
+    }
+    
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {key}"
     }
     
     last_err = None
     
-    for attempt in range(cfg.MAX_RETRIES):
+    for attempt in range(cfg.MAX_RETRIES + 1):  # +1 pour tentative initiale
         try:
-            resp = requests.post(cfg.API_URL, headers=headers, json=payload, 
-                              timeout=(10, cfg.TIMEOUT))
+            # ⏱️ Timeout court : connexion rapide, lecture modérée
+            resp = session.post(
+                cfg.API_URL,
+                headers=headers,
+                json=payload,
+                timeout=(cfg.CONNECT_TIMEOUT, cfg.READ_TIMEOUT)
+            )
             
-            if resp.status_code == 401: raise APIError("🔑 Clé API invalide")
-            if resp.status_code == 429: raise APIError("⏱️ Rate limit - patientez")
-            if resp.status_code >= 500: raise APIError(f"🔥 Serveur Mistral {resp.status_code}")
+            if resp.status_code == 401: 
+                raise APIError("🔑 Clé API invalide")
+            if resp.status_code == 429: 
+                raise APIError("⏱️ Rate limit")
+            if resp.status_code >= 500: 
+                raise APIError(f"🔥 Serveur {resp.status_code}")
             
             resp.raise_for_status()
             data = resp.json()
             
-            if not data.get("choices"): raise APIError("Réponse vide")
-            content = data["choices"][0].get("message", {}).get("content")
-            if not content: raise APIError("Contenu vide")
+            if not data.get("choices"): 
+                raise APIError("Réponse vide")
             
-            logger.info(f"✅ {len(content)} chars | Modèle: {model}")
+            content = data["choices"][0].get("message", {}).get("content")
+            if not content: 
+                raise APIError("Contenu vide")
+            
+            logger.info(f"✅ {len(content)} chars | {model} | {attempt+1} tentative(s)")
             return content
             
-        except (requests.exceptions.ConnectTimeout, requests.exceptions.ReadTimeout,
-                requests.exceptions.ConnectionError) as e:
-            last_err = str(e)
+        except requests.exceptions.ConnectTimeout:
+            last_err = f"Connexion timeout ({cfg.CONNECT_TIMEOUT}s) - serveur injoignable"
             wait = cfg.RETRY_DELAY * (cfg.RETRY_BACKOFF ** attempt)
-            logger.warning(f"⏱️ Retry {attempt+1}/{cfg.MAX_RETRIES} dans {wait:.1f}s")
-            if attempt < cfg.MAX_RETRIES - 1: time.sleep(wait)
+            logger.warning(f"⏱️ Connect timeout, retry {attempt+1} dans {wait:.1f}s")
+            if attempt < cfg.MAX_RETRIES: 
+                time.sleep(wait)
+                
+        except requests.exceptions.ReadTimeout:
+            last_err = f"Lecture timeout ({cfg.READ_TIMEOUT}s) - réponse trop lente"
+            # Pas de retry sur read timeout, essayer fallback
+            if not use_fallback:
+                logger.info("🔄 Bascule fallback...")
+                try:
+                    return call_api(system, user, use_fallback=True)
+                except:
+                    pass
+            raise APIError(f"⏱️ {last_err}\n\nL'API est lente. Réessayez ou utilisez une connexion plus stable.")
             
-        except APIError: raise
+        except requests.exceptions.ConnectionError as e:
+            last_err = f"Connexion impossible: {str(e)[:50]}"
+            wait = cfg.RETRY_DELAY * (cfg.RETRY_BACKOFF ** attempt)
+            if attempt < cfg.MAX_RETRIES: 
+                time.sleep(wait)
+                
+        except APIError: 
+            raise
         except Exception as e:
-            last_err = str(e)
+            last_err = str(e)[:100]
             break
     
-    # Si échec avec modèle principal, essayer fallback
+    # Fallback automatique si échec avec modèle principal
     if not use_fallback:
-        logger.info("🔄 Bascule vers modèle fallback...")
+        logger.info("🔄 Tentative avec modèle fallback...")
         try:
             return call_api(system, user, use_fallback=True)
         except APIError:
             pass
     
     raise APIError(
-        f"⏱️ Échec après {cfg.MAX_RETRIES} tentatives.\n\n"
-        f"**Erreur:** {last_err}\n\n"
-        f"**Solutions:**\n"
-        f"• Vérifiez votre connexion\n"
-        f"• Réessayez dans 1-2 min\n"
-        f"• L'API Mistral peut être surchargée"
+        f"❌ Échec après {cfg.MAX_RETRIES} tentatives.\n\n"
+        f"**Dernier problème:** {last_err}\n\n"
+        f"**Conseils:**\n• Vérifiez votre connexion (test DNS: {test_dns_resolution()})\n"
+        f"• Réessayez dans 1 minute\n"
+        f"• L'API Mistral peut être temporairement indisponible"
     )
 
 # =============================================================================
@@ -214,31 +291,32 @@ def cache_key(system: str, user: str) -> str:
     return hashlib.sha256(f"{system}:{user}".encode()).hexdigest()[:16]
 
 def cache_get(system: str, user: str) -> Optional[str]:
-    if 'cache' not in st.session_state: st.session_state.cache = {}
+    if 'cache' not in st.session_state: 
+        st.session_state.cache = {}
     key = cache_key(system, user)
     entry = st.session_state.cache.get(key)
-    if not entry: return None
+    if not entry: 
+        return None
     if (datetime.now() - datetime.fromisoformat(entry['t'])).total_seconds() > cfg.CACHE_TTL:
         del st.session_state.cache[key]
         return None
     return entry['v']
 
 def cache_set(system: str, user: str, value: str):
-    if 'cache' not in st.session_state: st.session_state.cache = {}
+    if 'cache' not in st.session_state: 
+        st.session_state.cache = {}
     st.session_state.cache[cache_key(system, user)] = {'v': value, 't': datetime.now().isoformat()}
 
 def generate(prompt_key: str, user_input: str) -> str:
     system = SYSTEM_PROMPTS.get(prompt_key, "")
     
-    # Cache
     cached = cache_get(system, user_input)
     if cached:
-        st.success("📦 Depuis le cache")
+        st.success("📦 Cache")
         return cached
     
-    # Génération avec UI de progression
     try:
-        with st.spinner("🤖 Génération en cours... (peut prendre 30-60s)"):
+        with st.spinner("🤖 Génération... (~10-20s)"):
             result = call_api(system, user_input)
         cache_set(system, user_input, result)
         return result
@@ -247,7 +325,7 @@ def generate(prompt_key: str, user_input: str) -> str:
         return f"❌ {e}"
     except Exception as e:
         logger.error(f"Erreur: {e}")
-        return f"❌ Erreur: {e}"
+        return f"❌ {e}"
 
 # =============================================================================
 # SESSION
@@ -255,7 +333,8 @@ def generate(prompt_key: str, user_input: str) -> str:
 
 def init():
     for k, v in {'results': {}, 'init': True}.items():
-        if k not in st.session_state: st.session_state[k] = v
+        if k not in st.session_state: 
+            st.session_state[k] = v
 
 # =============================================================================
 # UI
@@ -281,11 +360,11 @@ with st.sidebar:
         st.error(f"⚠️ {m.err}")
     else:
         st.metric("Marge", f"{m.marge_pct}%")
-        st.metric("CA/mois nécessaire", f"{m.ca_nec:,.0f} €" if not math.isinf(m.ca_nec) else "∞ €")
+        st.metric("CA/mois", f"{m.ca_nec:,.0f} €" if not math.isinf(m.ca_nec) else "∞ €")
         st.metric("Cmd/jour", f"{m.cmd_jour:.1f}")
 
         st.divider()
-        ca_test = st.number_input("CA mensuel estimé (€)", value=15930, step=500, min_value=0)
+        ca_test = st.number_input("CA estimé (€)", value=15930, step=500, min_value=0)
         
         p = calc_projection(ca_test, m.marge_pct/100, ca_test*ads_pct)
         c1, c2 = st.columns(2)
@@ -293,15 +372,16 @@ with st.sidebar:
                  "normal" if p.profitable else "inverse")
         c2.metric("10K", f"{p.prog}%")
         st.progress(min(p.prog/100, 1.0))
-        if p.prog >= 100: st.success("🎉 Objectif atteint !")
+        if p.prog >= 100: 
+            st.success("🎉 Objectif !")
 
 # --- TABS ---
 t1, t2, t3, t4 = st.tabs(["🎯 Stratégie", "🎁 Offre", "🎬 Créatives", "📢 Acquisition"])
 
-def render_tab(tab, key, title, placeholder, prompt_key, template, min_len=3):
+def render_tab(tab, key, title, label, placeholder, prompt_key, template, min_len=3):
     with tab:
         st.subheader(title)
-        val = st.text_input(placeholder.split(" | ")[0], placeholder=placeholder.split(" | ")[1], key=f"in_{key}")
+        val = st.text_input(label, placeholder=placeholder, key=f"in_{key}")
         
         if val and len(val.strip()) < min_len:
             st.warning(f"Min {min_len} caractères")
@@ -321,21 +401,21 @@ def render_tab(tab, key, title, placeholder, prompt_key, template, min_len=3):
         elif key in st.session_state.results:
             st.markdown(st.session_state.results[key])
 
-render_tab(t1, "strat", "Trouver 3 produits à marge x3", 
-           "Niche ou passion ? | Ex: Accessoires yoga éco-responsables",
-           "strategie", "Niche: {}. Propose 3 produits concrets avec analyse marge x3.")
+render_tab(t1, "strat", "3 produits à marge x3", 
+           "Niche ou passion ?", "Accessoires yoga éco-responsables",
+           "strategie", "Niche: {}. 3 produits concrets marge x3.")
 
-render_tab(t2, "offre", "Créer une offre Bundle Premium",
-           "Produit sélectionné | Ex: Tapis liège + Gourde inox",
-           "offre", "Produit: {}. Crée un bundle premium irrésistible.")
+render_tab(t2, "offre", "Offre Bundle Premium",
+           "Produit sélectionné", "Tapis liège + Gourde inox",
+           "offre", "Produit: {}. Bundle premium.")
 
-render_tab(t3, "creat", "5 Scripts Vidéo UGC (15-30s)",
-           "Produit pour vidéos | Ex: Correcteur de posture",
-           "creatives", "Produit: {}. Génère 5 scripts UGC Hook+Problème+Solution+CTA.")
+render_tab(t3, "creat", "5 Scripts UGC",
+           "Produit pour vidéos", "Correcteur de posture",
+           "creatives", "Produit: {}. 5 scripts UGC.")
 
-render_tab(t4, "acqui", "Plan d'Acquisition & 20 Angles Pub",
-           "Contexte (cible, budget, canal) | Femmes 25-35 ans, 50€/jour, TikTok Shop",
-           "acquisition", "Contexte: {}. Plan test 7j + 20 angles pub.", min_len=10)
+render_tab(t4, "acqui", "Plan Acquisition",
+           "Contexte (cible, budget, canal)", "Femmes 25-35 ans, 50€/jour, TikTok",
+           "acquisition", "Contexte: {}. Plan 7j + 20 angles.", min_len=10)
 
 st.divider()
 st.caption("Brandshipping AI - Agent 10K © 2026 | Propulsé par Mistral AI")
