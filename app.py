@@ -1,6 +1,6 @@
 """
 Brandshipping AI - Agent 10K
-Version Expert Pro - Monolithique optimisée
+Version Pro - Gestion timeout & retry améliorée
 """
 import os
 import re
@@ -29,13 +29,14 @@ logger = logging.getLogger("brandshipping_ai")
 
 @dataclass(frozen=True)
 class Config:
-    """Configuration centralisée"""
+    """Configuration centralisée - TIMEOUTS AUGMENTÉS"""
     API_URL: str = "https://api.mistral.ai/v1/chat/completions"
     MODEL: str = "mistral-large-latest"
     TEMPERATURE: float = 0.7
-    TIMEOUT: int = 60
+    TIMEOUT: int = 120  # ⬆️ Augmenté à 120s (était 60s)
     MAX_RETRIES: int = 3
-    RETRY_DELAY: float = 2.0
+    RETRY_DELAY: float = 3.0  # ⬆️ Délai initial augmenté
+    RETRY_BACKOFF: float = 2.5  # ⬆️ Backoff plus agressif
     OBJECTIF_10K: float = 10000.0
     SEUIL_ADS: float = 0.35
     MAX_INPUT: int = 500
@@ -110,7 +111,7 @@ def check_injection(text: str) -> tuple[bool, str]:
     return True, ""
 
 # =============================================================================
-# MODÈLE FINANCIER (avec validation complète)
+# MODÈLE FINANCIER
 # =============================================================================
 
 @dataclass
@@ -172,14 +173,14 @@ def calculer_projection(ca: float, marge_pct: float, cout_ads: float) -> Project
     )
 
 # =============================================================================
-# CLIENT API MISTRAL (Robuste avec retry)
+# CLIENT API MISTRAL - CORRIGÉ POUR TIMEOUTS
 # =============================================================================
 
 class APIError(Exception):
     pass
 
 def get_api_key() -> str:
-    """Récupère la clé API de manière sécurisée"""
+    """Récupère la clé API"""
     key = st.secrets.get("MISTRAL_API_KEY") or os.getenv("MISTRAL_API_KEY")
     if not key:
         raise APIError("❌ Clé MISTRAL_API_KEY manquante dans Settings > Secrets ou .env")
@@ -187,13 +188,15 @@ def get_api_key() -> str:
 
 def call_mistral_api(system_prompt: str, user_prompt: str) -> str:
     """
-    Appel API Mistral avec retry exponentiel et gestion d'erreurs détaillée
+    Appel API Mistral avec gestion robuste des timeouts et retry exponentiel
     """
     api_key = get_api_key()
+    
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {api_key}"
     }
+    
     payload = {
         "model": cfg.MODEL,
         "messages": [
@@ -207,52 +210,84 @@ def call_mistral_api(system_prompt: str, user_prompt: str) -> str:
     
     for attempt in range(cfg.MAX_RETRIES):
         try:
+            # ⬆️ Timeout augmenté + gestion connexion séparée
             response = requests.post(
                 cfg.API_URL,
                 headers=headers,
                 json=payload,
-                timeout=cfg.TIMEOUT
+                timeout=(10, cfg.TIMEOUT)  # (connect timeout, read timeout)
             )
             
             # Gestion codes HTTP spécifiques
             if response.status_code == 401:
-                raise APIError("🔑 Clé API invalide")
+                raise APIError("🔑 Clé API invalide - vérifiez votre MISTRAL_API_KEY")
             elif response.status_code == 429:
-                raise APIError("⏱️ Rate limit atteint - patientez")
+                raise APIError("⏱️ Rate limit atteint - patientez quelques minutes")
+            elif response.status_code == 422:
+                detail = response.json().get("detail", "Données invalides")
+                raise APIError(f"❌ Erreur de validation: {detail}")
             elif response.status_code >= 500:
-                raise APIError(f"🔥 Erreur serveur Mistral ({response.status_code})")
+                raise APIError(f"🔥 Erreur serveur Mistral ({response.status_code}) - Réessayez plus tard")
             
             response.raise_for_status()
             data = response.json()
             
             if not data.get("choices"):
-                raise APIError("Réponse API invalide")
+                raise APIError("Réponse API invalide: aucun contenu généré")
             
-            return data["choices"][0]["message"]["content"]
+            content = data["choices"][0].get("message", {}).get("content")
+            if not content:
+                raise APIError("Réponse API vide")
             
-        except requests.exceptions.Timeout:
-            last_error = "Timeout"
-            wait = cfg.RETRY_DELAY * (2 ** attempt)
-            logger.warning(f"Tentative {attempt+1} échouée (timeout), retry dans {wait}s")
+            logger.info(f"✅ Génération réussie ({len(content)} caractères)")
+            return content
+            
+        except requests.exceptions.ConnectTimeout:
+            last_error = "Timeout connexion (serveur injoignable)"
+            wait = cfg.RETRY_DELAY * (cfg.RETRY_BACKOFF ** attempt)
+            logger.warning(f"⏱️ Tentative {attempt+1}/{cfg.MAX_RETRIES} - Connexion timeout, retry dans {wait:.1f}s")
             if attempt < cfg.MAX_RETRIES - 1:
                 time.sleep(wait)
                 
-        except requests.exceptions.ConnectionError:
-            last_error = "Erreur connexion"
-            wait = cfg.RETRY_DELAY * (2 ** attempt)
-            logger.warning(f"Tentative {attempt+1} échouée (connexion), retry dans {wait}s")
+        except requests.exceptions.ReadTimeout:
+            last_error = "Timeout lecture (réponse trop lente)"
+            wait = cfg.RETRY_DELAY * (cfg.RETRY_BACKOFF ** attempt)
+            logger.warning(f"⏱️ Tentative {attempt+1}/{cfg.MAX_RETRIES} - Read timeout, retry dans {wait:.1f}s")
+            if attempt < cfg.MAX_RETRIES - 1:
+                time.sleep(wait)
+                
+        except requests.exceptions.ConnectionError as e:
+            last_error = f"Erreur connexion: {str(e)}"
+            wait = cfg.RETRY_DELAY * (cfg.RETRY_BACKOFF ** attempt)
+            logger.warning(f"🔌 Tentative {attempt+1}/{cfg.MAX_RETRIES} - Erreur connexion, retry dans {wait:.1f}s")
             if attempt < cfg.MAX_RETRIES - 1:
                 time.sleep(wait)
                 
         except APIError:
-            raise  # Ne pas retry sur erreurs client
+            raise  # Ne pas retry sur erreurs client (401, 422, etc.)
             
+        except requests.exceptions.RequestException as e:
+            last_error = f"Erreur réseau: {str(e)}"
+            wait = cfg.RETRY_DELAY * (cfg.RETRY_BACKOFF ** attempt)
+            logger.warning(f"🌐 Tentative {attempt+1}/{cfg.MAX_RETRIES} - {last_error}, retry dans {wait:.1f}s")
+            if attempt < cfg.MAX_RETRIES - 1:
+                time.sleep(wait)
+                
         except Exception as e:
-            last_error = str(e)
-            logger.error(f"Erreur inattendue: {e}")
+            last_error = f"Erreur inattendue: {str(e)}"
+            logger.error(f"💥 Erreur critique: {e}", exc_info=True)
             break
     
-    raise APIError(f"Échec après {cfg.MAX_RETRIES} tentatives: {last_error}")
+    # Message final clair pour l'utilisateur
+    raise APIError(
+        f"⏱️ Échec après {cfg.MAX_RETRIES} tentatives.\n\n"
+        f"**Dernière erreur:** {last_error}\n\n"
+        f"**Solutions possibles:**\n"
+        f"• Vérifiez votre connexion internet\n"
+        f"• L'API Mistral peut être temporairement surchargée\n"
+        f"• Réessayez dans 1-2 minutes\n"
+        f"• Si le problème persiste, contactez le support Mistral"
+    )
 
 # =============================================================================
 # CACHE (Session State)
@@ -276,13 +311,12 @@ def get_cached_result(system_prompt: str, user_prompt: str) -> Optional[str]:
     if not entry:
         return None
     
-    # Vérifier expiration (1h)
     age = (datetime.now() - datetime.fromisoformat(entry['time'])).total_seconds()
     if age > cfg.CACHE_TTL:
         del st.session_state.api_cache[key]
         return None
     
-    logger.info(f"Cache hit: {key}")
+    logger.info(f"📦 Cache hit: {key}")
     return entry['value']
 
 def set_cached_result(system_prompt: str, user_prompt: str, value: str) -> None:
@@ -303,19 +337,30 @@ def generate_with_cache(prompt_key: str, user_input: str) -> str:
     # Vérifier cache
     cached = get_cached_result(system_prompt, user_input)
     if cached:
-        st.info("📦 Résultat chargé depuis le cache")
+        st.success("📦 Résultat chargé depuis le cache (pas d'appel API)")
         return cached
     
-    # Générer
+    # Générer avec indicateur de progression
     try:
-        result = call_mistral_api(system_prompt, user_input)
+        with st.status("🤖 Appel API Mistral en cours...", expanded=True) as status:
+            st.write("⏳ Connexion à l'API...")
+            result = call_mistral_api(system_prompt, user_input)
+            st.write("✅ Réponse reçue !")
+            status.update(label="Génération terminée", state="complete")
+        
         set_cached_result(system_prompt, user_input, result)
         return result
+        
     except APIError as e:
+        st.error(str(e))
+        # Option de retry manuel
+        if st.button("🔄 Réessayer maintenant", key=f"retry_{prompt_key}"):
+            return generate_with_cache(prompt_key, user_input)
         return f"❌ {e}"
+        
     except Exception as e:
         logger.error(f"Erreur: {e}", exc_info=True)
-        return f"❌ Erreur: {e}"
+        return f"❌ Erreur inattendue: {e}"
 
 # =============================================================================
 # INITIALISATION SESSION STATE
@@ -424,9 +469,9 @@ with tab1:
                 st.error(warn)
             else:
                 clean = sanitize_input(niche)
-                with st.spinner("🔍 Analyse de niche..."):
-                    result = generate_with_cache("strategie", f"Niche: {clean}. Propose 3 produits concrets avec analyse marge x3.")
-                st.session_state.results['strategie'] = result
+                result = generate_with_cache("strategie", f"Niche: {clean}. Propose 3 produits concrets avec analyse marge x3.")
+                if not result.startswith("❌"):
+                    st.session_state.results['strategie'] = result
                 st.markdown(result)
     
     elif 'strategie' in st.session_state.results:
@@ -445,9 +490,9 @@ with tab2:
                 st.error(warn)
             else:
                 clean = sanitize_input(produit)
-                with st.spinner("🎨 Création de l'offre..."):
-                    result = generate_with_cache("offre", f"Produit: {clean}. Crée un bundle premium irrésistible.")
-                st.session_state.results['offre'] = result
+                result = generate_with_cache("offre", f"Produit: {clean}. Crée un bundle premium irrésistible.")
+                if not result.startswith("❌"):
+                    st.session_state.results['offre'] = result
                 st.markdown(result)
     
     elif 'offre' in st.session_state.results:
@@ -466,9 +511,9 @@ with tab3:
                 st.error(warn)
             else:
                 clean = sanitize_input(produit_video)
-                with st.spinner("🎬 Génération des scripts..."):
-                    result = generate_with_cache("creatives", f"Produit: {clean}. Génère 5 scripts UGC format Hook+Problème+Solution+CTA.")
-                st.session_state.results['creatives'] = result
+                result = generate_with_cache("creatives", f"Produit: {clean}. Génère 5 scripts UGC format Hook+Problème+Solution+CTA.")
+                if not result.startswith("❌"):
+                    st.session_state.results['creatives'] = result
                 st.markdown(result)
     
     elif 'creatives' in st.session_state.results:
@@ -491,9 +536,9 @@ with tab4:
                 st.error(warn)
             else:
                 clean = sanitize_input(contexte)
-                with st.spinner("📊 Élaboration du plan média..."):
-                    result = generate_with_cache("acquisition", f"Contexte: {clean}. Plan test 7j + 20 angles pub.")
-                st.session_state.results['acquisition'] = result
+                result = generate_with_cache("acquisition", f"Contexte: {clean}. Plan test 7j + 20 angles pub.")
+                if not result.startswith("❌"):
+                    st.session_state.results['acquisition'] = result
                 st.markdown(result)
     
     elif 'acquisition' in st.session_state.results:
