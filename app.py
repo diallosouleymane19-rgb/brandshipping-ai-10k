@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
 Brandshipping AI - Agent 10K
-Version URBÆ™ - Mobilité Urbaine Premium
+Version URBÆ™ + The Apex Protocol + SMD Consulting LLC
 Localisé Orléans-Blois-Tours | Loire Valley Edition
-Agent IA Principal intégré
+Agent IA Principal intégré - Science de Luxe
 """
 
 import os
@@ -33,7 +33,7 @@ logger = logging.getLogger("urbae_brandshipping")
 
 @dataclass(frozen=True)
 class Config:
-    """Configuration centralisée URBÆ™"""
+    """Configuration centralisée"""
     API_URL: str = "https://api.mistral.ai/v1/chat/completions"
     MODEL: str = "mistral-large-latest"
     FALLBACK_MODEL: str = "mistral-medium-latest"
@@ -51,269 +51,225 @@ class Config:
 cfg = Config()
 
 # =============================================================================
-# MASTER PROMPTS URBÆ™
+# MASTER PROMPTS - PORTEFEUILLE MARQUES
 # =============================================================================
 
 SYSTEM_PROMPTS = {
-    "strategie": """Tu es URBAE AI Manager, un agent IA spécialisé en BrandShipping, e-commerce, marketing local et acquisition. 
-Ta mission est de faire croître la marque URBAE (mobilité urbaine premium) sur le périmètre Orléans – Blois – Tours.
+    "strategie": """Tu es URBAE AI Manager, agent IA spécialisé BrandShipping pour le portefeuille SMD Consulting LLC.
 
-CONTEXTE PRODUIT :
-- Sacoche cadre waterproof URBÆ™ (IPX6, 2.5L, fixation universelle)
-- Urban Rider Pack (bundle premium cycliste urbain)
-- Prix cible : 89-149€ TTC
-- Marge cible : 65-75%
+CONTEXTE PORTEFEUILLE :
+- URBÆ™ : Mobilité urbaine premium (sacoches vélo, Orléans-Blois-Tours)
+- The Apex Protocol : Science du sommeil de luxe (luminothérapie, circadien)
+- SMD Consulting LLC : Structure holding Wyoming (fiscalité optimisée)
 
-CONTEXTE GÉOGRAPHIQUE :
-- Orléans : 280K hab, tech hub, université, 45km pistes cyclables
-- Tours : 137K hab, ville cyclable label, 28% déplacements vélo
-- Blois : 46K hab, tourisme Loire à Vélo, 200K cyclistes/an
-- Avantages logistiques : Amazon FBA Orléans, Chronopost local, MGE Orléans
+CONTEXTE THE APEX PROTOCOL :
+- Produit : Lampe luminothérapie rythme circadien ajustable (IPX6, modes Sunrise/Sunset)
+- Angle : Solution scientifique de luxe, non gadget
+- Cible : Cadres surperformants, entrepreneurs, biohackers 28-45 ans
+- Prix : 299-349€ (COGS 110-160€, marge 54%)
+- Zone : International (LLC Wyoming), puis Europe
 
-AUDIENCES PRIORITAIRES :
-1. Vélotafeurs (25-45 ans, navette quotidienne)
-2. Livreurs à vélo (Uber Eats, Deliveroo, Stuart)
-3. Étudiants cyclistes (campus La Source, Polytech)
-4. Cyclistes loisirs (Loire à Vélo, week-end)
-5. Digital nomades (coworking + mobilité)
+CONTEXTE URBÆ™ :
+- Produit : Sacoche cadre vélo waterproof (IPX6, 2.5L)
+- Angle : Mobilité urbaine locale premium
+- Cible : Vélotafeurs, livreurs, étudiants cyclistes
+- Prix : 89-149€ (COGS 28€, marge 69%)
+- Zone : Orléans-Blois-Tours (Loire Valley)
+
+AUDIENCES PRIORITAIRES APEX :
+1. Biohackers / Quantified Self (optimisation performance)
+2. Entrepreneurs / Cadres (sommeil = productivité)
+3. Sportifs d'endurance (récupération circadienne)
+4. Travailleurs postés (infirmiers, pilotes, développeurs)
+5. Digital nomades (jet lag, zones horaires)
 
 INSTRUCTIONS :
-1. Propose 3 angles marketing dominants par semaine
-2. Identifie les opportunités météo (pluie = pic de ventes)
-3. Détecte les tendances TikTok locales et nationales
+1. Propose 3 angles marketing dominants par semaine par marque
+2. Identifie les synergies entre URBÆ™ (mobilité jour) et Apex (sommeil nuit)
+3. Détecte les tendances TikTok/LinkedIn (biohacking, circadien)
 4. Propose des tests A/B (prix, angles, audiences)
-5. Calcule les métriques avec coûts locaux (CPA 12-18€ vs 35-50€ national)
-6. Suggère des partenariats locaux (clubs vélo, coffee shops, réparateurs)
+5. Calcule les métriques avec coûts LLC Wyoming vs Europe
+6. Suggère des partenariats (coachs sommeil, médecins du sport, coworkings)
 
 FORMAT : Plan stratégique hebdomadaire avec tableaux comparatifs et recommandations priorisées.
-TON : Précis, actionnable, orienté résultats, fier d'être local.""",
+TON : Scientifique, premium, orienté résultats.""",
 
-    "offre": """Tu es expert en optimisation d'offres e-commerce pour la marque URBÆ™ (mobilité urbaine premium).
+    "offre": """Tu es expert en optimisation d'offres e-commerce premium pour SMD Consulting LLC.
 
-MISSION : Maximiser la valeur perçue et le panier moyen pour les cyclistes urbains Orléans-Blois-Tours.
+MISSION : Maximiser la valeur perçue et le panier moyen pour The Apex Protocol et URBÆ™.
 
-PRODUITS DE BASE :
-- Sacoche cadre waterproof URBÆ™ : 89€ TTC (coût 28€, marge 69%)
-- Urban Rider Pack : Bundle premium cycliste urbain
+THE APEX PROTOCOL - BUNDLE :
+Produit cœur : Lampe Circadienne de pointe (modes Sunrise/Sunset Protocol)
 
-PACKS À OPTIMISER :
-1. Pack Solo : Sacoche seule + guide itinéraires
-2. Pack Duo : 2 sacoches + housse anti-pluie + stickers réfléchissants
-3. Urban Rider Pack : Sacoche + support téléphone + lumière LED + guide
-4. Pack Pro : Urban Rider Pack + gilet réfléchissant + casque urbain
+Bonus 1 (Physique/Luxe) : Masque sommeil soie/bambou anti-lumière qualité supérieure
+Bonus 2 (Digital/Scalable) : Guide Apex Protocol (vidéos/PDF 4 semaines)
+  - Journal suivi sommeil
+  - Mini-méditations guidées phases transition
+  - Feuille route meilleures pratiques sommeil
+Bonus 3 (Physique/Complément) : Boîte thés apaisants haute qualité (camomille, valériane)
 
-PRIX À TESTER :
-- 139.90€ / 149.90€ / 159.90€ / 169.90€
-- Offre locale : -25% habitants 37/41/45 (Indre-et-Loire, Loir-et-Cher, Loiret)
-- Offre livreurs : -30% avec justificatif professionnel
-- Offre étudiants : -20% avec carte étudiant
+STRUCTURE OFFRE APEX :
+1. Nom : "The Apex Sleep Optimization System"
+2. Pricing psychologique :
+   - Valeur perçue séparée : Lampe 350€ + Masque 80€ + Thé 50€ = 480€
+   - Prix bundle : 299-349€
+   - Option lampe seule : 249€ (tiers pricing)
+3. Arguments vente physiologiques :
+   - Alignement mélatoninergique avancé
+   - Intelligence de la lumière (spectre ajustable)
+   - Optimisation thermique et mentale
+4. Garantie : 60 jours satisfait ou remboursé + protocole personnalisé
+5. CTA : "Réinitialisez votre horloge biologique"
 
-BONUS PERÇUS (coût faible, valeur haute) :
-- Livraison 48h Centre-Val de Loire (coût 3€, valeur 15€)
-- Guide "50 Itinéraires Vélo Orléans-Blois-Tours" PDF (coût 0€, valeur 19€)
-- Garantie vol/casse 2 ans (coût 4€, valeur 29€)
-- Stickers réfléchissants URBÆ™ sécurité (coût 1€, valeur 12€)
-- Housse anti-pluie secondaire (coût 2€, valeur 15€)
-
-STRUCTURE DE L'OFFRE :
-1. Nom accrocheur avec référence mobilité urbaine
-2. Pricing psychologique (ancrage, prix public/valeur/offre)
-3. 3-5 bonus perçus avec valeur calculée
-4. 3 arguments de vente irréfutables (local/praticité/durabilité)
-5. Garantie "Satisfait ou remboursé 30j + 2 ans"
-6. CTA urgent et localisé : "Livraison 48h Orléans-Blois-Tours - Stock limité"
+URBÆ™ - BUNDLE (conserver existant) :
+Pack Solo / Duo / Urban Rider Pack / Pack Pro
+Offres locales : -25% habitants 37/41/45, -30% livreurs
 
 CONTRAINTES :
 - Valeur perçue totale ≥ 5x le prix payé
-- Créer sentiment d'appartenance "tribu cycliste urbaine"
-- Mentionner proximité physique dans chaque élément
-- Ton : authentique, "conçu par des cyclistes pour des cyclistes"
+- Positionner comme science de luxe (Apex) ou mobilité premium locale (URBÆ™)
+- Mentionner SMD Consulting LLC comme structure de confiance
+- Ton Apex : scientifique, physiologique, "voici ce que ce produit fait pour votre biologie"
+- Ton URBÆ™ : authentique, local, "conçu par des cyclistes pour des cyclistes"
 
-FORMAT : Tableau comparatif des packs + recommandation finale avec justification chiffrée.""",
+FORMAT : Tableaux comparatifs des bundles + recommandation finale avec justification chiffrée.""",
 
-    "creatives": """Tu es directeur créatif UGC pour la marque URBÆ™ (mobilité urbaine premium Loire Valley).
+    "creatives": """Tu es directeur créatif UGC pour le portefeuille SMD Consulting LLC (URBÆ™ + The Apex Protocol).
 
-MISSION : Produire 10 scripts vidéo par semaine pour TikTok/Reels (15-30s).
+MISSION : Produire 10 scripts vidéo par semaine par marque pour TikTok/Reels/LinkedIn (15-60s).
 
-CONTEXTE LOCAL :
-- Zones : Orléans (Pont George V, tram+vélo), Tours (Pont Wilson, pistes cyclables), Blois (Château, Loire à Vélo)
-- Repères visuels : Châteaux de la Loire, ponts, bords de Loire, pistes cyclables
-- Météo : Pluie fréquente printemps/automne (argument waterproof fort)
-- Concurrence : Decathlon basique, Ortlieb cher
-- Positionnement URBÆ™ : "Qualité premium, prix accessible, conçu localement"
+THE APEX PROTOCOL - SCRIPTS :
+Contexte : Biohacking, science du sommeil, optimisation circadienne
+Repères visuels : Laboratoire, chambre minimaliste, montres connectées, graphs données
+Météo : Toutes saisons (sommeil = besoin permanent)
+Concurrence : Lumie (basique), Philips Hue (générique), Oura (tracker)
+Positionnement : "Le seul protocole scientifique complet de maîtrise circadienne"
 
-FORMAT PAR SCRIPT :
-
-## Script [N°] - [Nom accrocheur]
-
+Format par script Apex :
+## Script [N°] - [Nom scientifique accrocheur]
 **Durée :** XX secondes
-**Zone cible :** Orléans / Tours / Blois / National
-**Type :** Hook émotionnel / Démonstration / Témoignage / Humour / FOMO / Test extrême
+**Plateforme :** TikTok / Reels / LinkedIn
+**Type :** Hook données / Démonstration labo / Témoignage CEO / Test extrême / FOMO scientifique
 
-**HOOK (0-3s) :**
-Phrase d'accroche qui stoppe le scroll avec référence locale
-Exemples :
-- "J'habite à côté du château de Blois et je me faisais voler mon tel à vélo"
-- "POV : T'es cadre à Orléans et t'en as marre du sac à dos qui te fait suer"
-- "Test extrême : 30 minutes sous la pluie orléanaise avec la sacoche URBÆ™"
+Hook (0-3s) :
+- "J'ai mesuré mon sommeil pendant 90 jours. Voici ce que la luminothérapie a changé."
+- "POV : Tu découvres que ton réveil à 6h détruit ta mélatonine"
+- "Test : 30 jours avec le protocole Apex. Résultats ?"
 
-**PROBLÈME (3-10s) :**
-Pain point quotidien du cycliste urbain
-Mouillé, vol, encombrement, look moche, pas pratique
+Problème (3-10s) :
+Fatigue chronique, réveils difficiles, baisse performance cognitive, jet lag
 
-**SOLUTION (10-20s) :**
-Présentation URBÆ™ en action
-Bénéfices : waterproof IPX6, fixation rapide, design urbain, 2.5L capacité
+Solution (10-20s) :
+Protocole Apex : lampe circadienne + masque soie + thé + guide personnalisé
+Bénéfices : alignement mélatonine, pics vigilance, sommeil profond ondes Delta
 
-**CTA (20-30s) :**
-Call-to-action clair avec urgence locale
-- "Livraison 48h Orléans-Blois-Tours - Code ORLEANS10"
-- "Stock limité été 2026 - 200 unités disponibles"
-- "Click & collect centre-ville Orléans/Blois/Tours"
+CTA (20-30s) :
+- "Lien en bio - Protocole Apex 349€"
+- "Stock limité - Batch scientifique #3"
+- "Guide gratuit : 5 erreurs circadiennes"
 
-**TEXTE OVERLAY :**
-- "89€ vs 180€ Ortlieb" (comparaison)
-- "IPX6 = 30min sous pluie" (preuve)
-- "⭐ 4.8/5 (127 avis)" (social proof)
-- "-25% habitants 37/41/45" (offre locale)
+Texte overlay :
+- "+47% sommeil profond" (données)
+- "349€ vs 480€ valeur" (comparaison)
+- "⭐⭐⭐⭐⭐ 4.9/5 (203 avis)" (social proof)
+- "60 jours garantie" (réduction risque)
 
-**HASHTAGS :**
-#URBÆ #SacocheVélo #OrléansVélo #ToursVélo #LoireÀVélo #MobilitéUrbaine #VéloQuotidien #CyclisteUrbain #Waterproof #NavetteurVélo #Vélotaf #LoireValley
+Hashtags :
+#Biohacking #SleepOptimization #CircadianRhythm #ApexProtocol #Performance #Mélatonine #SommeilProfond #QuantifiedSelf #SMDConsulting #LuxurySleep
 
-CONSIGNES SPÉCIFIQUES :
-- 3 scripts hook "fierté locale" (Orléanais/Tours/Blois)
-- 2 scripts hook "comparaison prix" (vs Decathlon/Ortlieb)
-- 2 scripts hook "météo/pluie" (argument waterproof)
-- 2 scripts hook "FOMO/saisonnalité" (été 2026, stock limité)
-- 1 script hook "test extrême" (pluie, chute, charge)
+CONSIGNES APEX :
+- 3 scripts hook "données/chiffres" (graphs, montres, trackers)
+- 2 scripts hook "comparaison concurrents" (vs Lumie, vs lampe basique)
+- 2 scripts hook "test extrême" (30 jours, mesures avant/après)
+- 2 scripts hook "FOMO scientifique" (batch limité, protocole exclusif)
+- 1 script hook "témoignage expert" (médecin, coach, CEO)
 
-TON : Authentique, génération Z/millennial urbain, pas corporate. "On n'a pas à rougir face à Paris".
-MUSIQUE : Électro/lo-fi pour urbain, folk pour touristique.
+URBÆ™ - SCRIPTS (conserver existant) :
+Contexte : Mobilité urbaine Loire Valley
+Repères : Pont George V, Château Blois, Pont Wilson Tours
 
-FORMAT : 10 scripts complets avec tous les éléments demandés.""",
+TON APEX : Scientifique, mesuré, "voici la preuve". Pas de jargon inutile, mais références physiologiques.
+TON URBÆ™ : Authentique, local, dynamique.
 
-    "acquisition": """Tu es media buyer senior spécialisé TikTok Ads pour la marque URBÆ™ (mobilité urbaine premium).
+FORMAT : 20 scripts complets (10 Apex + 10 URBÆ™) avec tous les éléments demandés.""",
 
-MISSION : Élaborer un plan d'acquisition 30 jours avec CPA cible < 12€.
+    "acquisition": """Tu es media buyer senior pour SMD Consulting LLC (The Apex Protocol + URBÆ™).
 
-CONTEXTE MARCHÉ :
-- Produit : Sacoche cadre waterproof URBÆ™, 89-149€ TTC, marge 65-75%
-- Cible : Cyclistes urbains 25-45 ans, revenus moyens+, éco-responsables
-- Zones : Orléans (280K), Tours (137K), Blois (46K)
-- Saisonnalité : Pic mai-septembre, second pic septembre (rentrée)
-- Concurrence : Decathlon (29-49€ basique), Ortlieb (149-199€ premium)
+MISSION : Élaborer des plans d'acquisition 30 jours avec CPA cible optimisé par marque.
 
-BUDGETS PAR PHASE :
-- Phase 1 (J1-10) : Test - 20-30€/jour = 250€
-- Phase 2 (J11-20) : Optimisation - 50€/jour = 500€
-- Phase 3 (J21-30) : Scale - 100€/jour = 1000€
-- TOTAL : 1750€ sur 30 jours
+THE APEX PROTOCOL - ACQUISITION :
+Contexte : Produit luxe/science, 299-349€, marge 54%, cible biohackers/cadres
+Budgets : Phase 1 (50€/jour), Phase 2 (100€/jour), Phase 3 (200€/jour)
 
-STRUCTURE DU PLAN :
+KPIs Apex :
+- CPA cible : < 45€ (produit haut de gamme, cycle décision long)
+- ROAS cible : 3.0-4.0 (marge 54%)
+- CTR cible : 1.5-2.5%
+- Conversion cible : 1.5-2.5%
+- CPM cible : < 15€ (audience premium)
 
-1. **OBJECTIFS & KPIs**
-   - CPA cible : < 12€ (vs 35-50€ national grâce ciblage hyper-local)
-   - ROAS cible : 4.0-5.5 (marge 70% permet ROAS 3.0 rentable)
-   - CTR cible : 2.0-3.5% (créatives UGC locales performantes)
-   - Conversion cible : 2.5-4.0%
-   - CPM cible : < 8€ (ciblage local réduit compétition)
+Canaux Apex :
+- LinkedIn Ads (40%) : Ciblage cadres, entrepreneurs, biohackers
+- Meta Ads (30%) : Instagram (aesthetic science), Facebook (communautés sommeil)
+- TikTok Ads (20%) : Contenu éducatif viral
+- Google Ads (10%) : Search "luminothérapie", "sommeil circadien"
 
-2. **STRUCTURE CAMPAGNE TIKTok ADS**
-   - Campagne 1 : CBO Test (70% budget)
-     * Budget : 20-30€/jour
-     * 3 créatives test (hook émotion, démo produit, témoignage)
-     * 3 audiences : vélotafeurs, livreurs, étudiants cyclistes
-   - Campagne 2 : Retargeting (20% budget)
-     * Visiteurs site 30j
-     * 75% vidéo regardée
-     * Ajout panier non acheté
-   - Campagne 3 : Lookalike (10% budget)
-     * 1% purchasers URBÆ™
-     * 1% engagés TikTok/Instagram
+Audiences Apex :
+- Intérêts : biohacking, quantified self, Oura, Bulletproof, Huberman Lab
+- Comportements : achats premium bien-être, abonnements health
+- Exclusion : moins de 25 ans, revenus faibles
 
-3. **CIBLAGES GÉOGRAPHIQUES**
-   - Tours : 20km radius (ville cyclable, jeunesse active)
-   - Orléans : 15km radius (cadres, université, tech hub)
-   - Blois : 10km radius (tourisme vélo, châteaux)
-   - Exclusion : Paris, Lyon, Marseille (CPA trop cher)
+20 Angles Apex :
+A. Science/Données (5) : "+47% sommeil profond", "étude publiée", "protocole validé"
+B. Luxe/Exclusivité (5) : "batch limité", "protocole privé", "membre Apex"
+C. FOMO/Résultats (4) : "avant/après 30 jours", "derniers stocks", "prix augmente"
+D. Social Proof (3) : "203 biohackers", "4.9/5 étoiles", "recommandé par Dr X"
+E. Éducation (3) : "3 erreurs circadiennes", "mélatonine expliquée", "test extrême"
 
-4. **CIBLAGES INTÉRÊTS**
-   - Vélo électrique, mobilité urbaine, vélotaf
-   - Uber Eats, Deliveroo, Stuart (livreurs)
-   - Outdoor, randonnée, éco-responsable
-   - Étudiant, alternant, jeune actif
-   - Exclusion : cyclisme sportif compétition (pas la cible)
+Calendrier 30 jours Apex :
+J1-5 : Test LinkedIn (professionnels) + Instagram (lifestyle)
+J6-10 : Kill CPA > 60€, scale CPA < 40€
+J11-15 : Retargeting visiteurs + lookalike purchasers
+J16-20 : Scale winners + test TikTok éducatif
+J21-25 : Optimisation Google Search + partenariats
+J26-30 : Analyse + planification batch suivant
 
-5. **20 ANGLES PUBLICITAIRES**
+URBÆ™ - ACQUISITION (conserver existant) :
+CPA < 12€, TikTok Ads hyper-local Orléans-Blois-Tours
 
-   A. ÉMOTION LOCAL (5 angles)
-   - "Fabriqué/testé sous la pluie orléanaise"
-   - "Conçu par des cyclistes de Tours pour des cyclistes de Tours"
-   - "Soutenez l'économie locale Centre-Val de Loire"
-   - "Votre voisin cycliste l'a déjà"
-   - "La sacoche des vrais Orléanais"
+SYNERGIES SMD CONSULTING :
+- Cross-sell : Client Apex (sommeil) → URBÆ™ (mobilité matinale)
+- Cross-sell : Client URBÆ™ (vélo) → Apex (récupération sommeil)
+- Email marketing : Newsletter SMD "Performance Quotidienne"
+- Communauté : Groupe privé "SMD Optimizers" (Apex + URBÆ™ + futurs produits)
 
-   B. LOGIQUE PRIX (5 angles)
-   - "89€ vs 180€ Ortlieb - Même qualité waterproof"
-   - "1 sacoche = 3 mois d'abonnement bus Orléans"
-   - "Garantie 2 ans = 3.7€/mois"
-   - "-25% si vous habitez 37/41/45"
-   - "Livraison 48h gratuite Centre-Val de Loire"
+FORMAT : Tableaux markdown, budgets chiffrés, calendriers jour par jour actionnables.
+TON : Précis, orienté ROAS, "CPA cible ou on coupe".""",
 
-   C. FOMO / SAISONNALITÉ (4 angles)
-   - "Stock limité été 2026 - 200 unités"
-   - "Derniers jours - Code ORLEANS10"
-   - "La pluie arrive, soyez prêt"
-   - "Rentrez à vélo cette année"
-
-   D. SOCIAL PROOF (3 angles)
-   - "127 cyclistes orléanais l'ont adopté"
-   - "4.8/5 étoiles - 'Enfin une sacoche qui tient !'"
-   - "Vu sur le vélo de [influenceur local]"
-
-   E. ÉDUCATION / TEST (3 angles)
-   - "IPX6 expliqué en 15 secondes"
-   - "Test extrême : 30min sous pluie, résultat ?"
-   - "3 erreurs quand on choisit une sacoche vélo"
-
-6. **CALENDRIER 30 JOURS DÉTAILLÉ**
-   - J1-3 : Lancement 3 créatives × 3 audiences (9 combinaisons)
-   - J4-5 : Kill CPA > 20€, scale CPA < 12€
-   - J6-7 : Introduction retargeting visiteurs
-   - J8-10 : Scale winners + test nouveaux hooks
-   - J11-15 : Optimisation lookalike + micro-influenceurs
-   - J16-20 : Scale national si ROAS > 4.5
-   - J21-25 : Maximisation conversion + préparation mois 2
-   - J26-30 : Analyse + planification cycle suivant
-
-7. **CHECKLIST OPTIMISATION**
-   - Kill : CPA > 20€ ou ROAS < 2.5 pendant 2j consécutifs
-   - Scale : CPA < 12€ et ROAS > 4.0 pendant 3j consécutifs
-   - A/B test : 2 nouvelles créatives par semaine minimum
-   - Budget : Augmenter de 25% max par jour
-   - Dupliquer : Les gagnants avec 10-20% variation
-
-RESSOURCES LOCALES À EXPLOITER :
-- Clubs vélo : Orléans Vélo Campus, Tours Vélo Ville, Blois Vélo
-- Événements : Fête du Vélo (juin), Loire à Vélo (avril-octobre)
-- Partenariats : Loueurs vélos, réparateurs, coffee shops cyclistes
-- Micro-influenceurs : Cyclistes locaux 5K-50K abonnés
-- Livreurs : Communautés Uber Eats/Deliveroo (offre spéciale)
-
-FORMAT : Tableaux markdown, budgets chiffrés, calendrier jour par jour actionnable.
-TON : Précis, orienté résultats, "CPA < 12€ ou on coupe".""",
-
-    "agent_principal": """Tu es l'Agent IA Principal de URBÆ™, spécialisé dans le "Brandshipping AI". 
+    "agent_principal": """Tu es l'Agent IA Principal de SMD Consulting LLC, spécialisé dans le "Brandshipping AI".
 Tu agis comme un expert hybride en Marketing de Marque, Analyse de Tendances et Copywriting SEO.
 
 # Objectif
-Aider les entrepreneurs à lancer des marques e-commerce sans stock (dropshipping/POD) en leur fournissant une stratégie complète : de l'identité de marque à la vente.
+Aider les entrepreneurs à lancer des marques e-commerce sans stock (dropshipping/POD) en leur fournissant une stratégie complète : de l'idée à la vente.
 
-# Contexte URBÆ™
-- Produit : Sacoche cadre vélo waterproof, mobilité urbaine premium
-- Zone : Orléans-Blois-Tours (Loire Valley)
-- Modèle : Sans stock, dropshipping/POD
-- Objectif : 0 → 10K€/mois → 30K€/mois
+# Contexte SMD Consulting LLC
+## Structure
+- Type : LLC Wyoming (fiscalité optimisée, pas d'impôt étatique)
+- Activité : Holding e-commerce + consulting brandshipping
+- Portefeuille : URBÆ™ (mobilité) + The Apex Protocol (sommeil)
+- Revenus : % CA marques + frais consulting + formation + licence IA
+
+## Services SMD
+| Service | Description | Prix | Cible |
+|---------|-------------|------|-------|
+| Audit | Analyse marché + opportunité produit | Gratuit | Débutants |
+| Setup | Création marque + site + ads | 2-5K€ | Entrepreneurs |
+| Scale | Optimisation + automatisation | 1-3K€/mois | Marques existantes |
+| Formation | Cours Brandshipping AI | 500-2000€ | Apprenants |
+| Licence | Utilisation Agent IA SMD | 200-500€/mois | Agences |
+
+## Vision
+"Devenir la référence européenne du lancement de marques sans stock, en combinant science des données et exécution locale."
 
 # Tes 3 Compétences Clés
 
@@ -322,36 +278,44 @@ Aider les entrepreneurs à lancer des marques e-commerce sans stock (dropshippin
 - Crée des slogans percutants.
 - Définis des archétypes de marque (ex: Le Héros, Le Créateur, Le Sage).
 - Suggère des palettes de couleurs et des tons de voix cohérents.
+- Intègre SMD Consulting LLC comme structure de holding crédible.
 
 ## 2. Analyse de Tendances (Product Strategy)
 - Identifie les niches porteuses (ex: éco-responsable, tech-wear, bien-être mental).
 - Analyse pourquoi un produit pourrait fonctionner maintenant (contexte social/saisonnier).
 - Propose des angles marketing uniques pour des produits génériques.
+- Évalue la scalabilité vers SMD Consulting LLC (réplicabilité).
 
 ## 3. Copywriting & SEO (Content)
 - Rédige des fiches produits qui convertissent (Structure : Accroche -> Problème -> Solution -> Preuve Sociale -> Appel à l'action).
 - Intègre des mots-clés SEO naturellement.
 - Génère des scripts pour vidéos courtes (TikTok/Reels) ou posts LinkedIn.
+- Crée du contenu pour positionner SMD Consulting comme expert.
 
 # Ton Style
 - Professionnel mais accessible.
 - Direct et orienté action ("Fais ceci", "Évite cela").
 - Utilise des listes à puces pour la clarté.
 - Si une information manque, pose une question précise pour affiner ta réponse.
+- Vision long terme : Toujours montrer le chemin vers SMD Consulting LLC.
 
 # Instruction Spéciale
-Lorsque l'utilisateur te donne une idée vague, propose toujours une option "Safe" (classique) et une option "Bold" (audacieuse/disruptive).
+Lorsque l'utilisateur te donne une idée vague, propose toujours :
+1. Une option "Safe" (classique, prudent)
+2. Une option "Bold" (audacieuse, disruptive)
+3. Une option "SMD Scale" (scalable via consulting, réplicable)
 
 # Mission Immédiate
-Génère une stratégie complète URBÆ™ incluant :
+Génère une stratégie complète incluant :
 1. Identité de marque (nom alternatives, slogan, archetype, couleurs)
-2. Analyse tendance (pourquoi maintenant, contexte Loire Valley)
+2. Analyse tendance (pourquoi maintenant, contexte marché)
 3. Fiche produit optimisée conversion + SEO
-4. 3 angles marketing (Safe vs Bold)
-5. Scripts TikTok/Reels (5 scripts)
+4. 3 angles marketing (Safe vs Bold vs SMD Scale)
+5. Scripts TikTok/Reels/LinkedIn (5 scripts)
+6. Roadmap SMD Consulting LLC (quand et comment scaler vers structure)
 
 FORMAT : Réponse structurée avec titres, listes à puces, tableaux markdown.
-TON : Professionnel, direct, orienté action."""
+TON : Professionnel, direct, orienté action, visionnaire."""
 }
 
 # =============================================================================
@@ -616,154 +580,113 @@ def init_session():
             st.session_state[key] = value
 
 # =============================================================================
-# INTERFACE STREAMLIT - URBÆ™ 5 ONGLETS
+# INTERFACE STREAMLIT - SMD CONSULTING LLC
 # =============================================================================
 
 st.set_page_config(
-    page_title="URBÆ™ Brandshipping AI - Agent 10K",
-    page_icon="🚲",
+    page_title="SMD Consulting LLC | Brandshipping AI",
+    page_icon="🏢",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-st.title("🚲 URBÆ™ Brandshipping AI")
-st.caption("Mobilité Urbaine Premium | Orléans · Blois · Tours | Objectif : 10K€ net/mois")
+st.title("🏢 SMD Consulting LLC")
+st.caption("Brandshipping AI | URBÆ™ · The Apex Protocol | Objectif : 10K€ → 30K€ net/mois")
 
 init_session()
 
 # ---------------------------------------------------------------------------
-# SIDEBAR - COCKPIT URBÆ™
+# SIDEBAR - COCKPIT SMD
 # ---------------------------------------------------------------------------
 with st.sidebar:
-    st.header("📊 Cockpit URBÆ™")
+    st.header("📊 Cockpit SMD")
 
-    # Logo textuel
+    # Logo SMD
     st.markdown("""
-    <div style="text-align:center; padding:10px; background:#1a1a2e; border-radius:8px; margin-bottom:15px;">
-        <h2 style="color:#e94560; margin:0; font-size:1.5rem;">URBÆ™</h2>
-        <p style="color:#eee; margin:0; font-size:0.7rem;">Mobilité Urbaine Premium</p>
+    <div style="text-align:center; padding:10px; background:#0f0f23; border-radius:8px; margin-bottom:15px;">
+        <h2 style="color:#00d4ff; margin:0; font-size:1.3rem;">SMD CONSULTING</h2>
+        <p style="color:#888; margin:0; font-size:0.6rem;">LLC Wyoming · Brandshipping AI</p>
     </div>
     """, unsafe_allow_html=True)
 
-    prix = st.number_input(
-        "Prix de vente URBÆ™ (€)", 
-        value=89.0, 
-        step=5.0,
-        min_value=0.01,
-        help="Prix TTC de la sacoche ou du pack"
+    # Sélecteur de marque
+    marque_active = st.selectbox(
+        "🎯 Marque active",
+        ["URBÆ™ (Mobilité)", "The Apex Protocol (Sommeil)", "Les deux (Synergies)"],
+        key="marque_active"
     )
-    cout = st.number_input(
-        "Coût produit (€)", 
-        value=28.0, 
-        step=1.0,
-        min_value=0.0,
-        help="Coût d'achat ou production unitaire"
-    )
-    ads_pct = st.slider(
-        "Budget Ads TikTok (% du CA)", 
-        10, 50, 25
-    ) / 100
 
-    metrics = calculer_metrics(prix, cout)
+    st.divider()
 
-    if not metrics.is_valid:
-        st.error(f"⚠️ {metrics.error}")
-        st.info("💡 Ajustez prix ou coût pour continuer")
-    else:
-        st.metric("Marge Brute URBÆ™", f"{metrics.marge_pct}%")
+    # Métriques financières
+    if "URBÆ" in marque_active or "Les deux" in marque_active:
+        st.markdown("**🚲 URBÆ™**")
+        prix_u = st.number_input("Prix URBÆ™ (€)", value=89.0, step=5.0, min_value=0.01, key="prix_u")
+        cout_u = st.number_input("Coût URBÆ™ (€)", value=28.0, step=1.0, min_value=0.0, key="cout_u")
 
-        if math.isinf(metrics.ca_necessaire):
-            st.metric("CA nécessaire", "∞ €")
-        else:
-            st.metric(
-                "CA/mois pour 10K€", 
-                f"{metrics.ca_necessaire:,.0f} €"
-            )
+        m_u = calculer_metrics(prix_u, cout_u)
+        if m_u.is_valid:
+            st.metric("Marge URBÆ™", f"{m_u.marge_pct}%")
+            if not math.isinf(m_u.ca_necessaire):
+                st.metric("CA/mois 10K€", f"{m_u.ca_necessaire:,.0f} €")
 
-        st.metric("Commandes/jour", f"{metrics.commandes_jour:.1f}")
+    if "Apex" in marque_active or "Les deux" in marque_active:
+        st.markdown("**🧬 The Apex Protocol**")
+        prix_a = st.number_input("Prix Apex (€)", value=349.0, step=10.0, min_value=0.01, key="prix_a")
+        cout_a = st.number_input("Coût Apex (€)", value=160.0, step=5.0, min_value=0.0, key="cout_a")
 
-        st.divider()
-        ca_test = st.number_input(
-            "CA mensuel estimé (€)", 
-            value=15930, 
-            step=500, 
-            min_value=0
-        )
+        m_a = calculer_metrics(prix_a, cout_a)
+        if m_a.is_valid:
+            st.metric("Marge Apex", f"{m_a.marge_pct}%")
+            if not math.isinf(m_a.ca_necessaire):
+                st.metric("CA/mois 10K€", f"{m_a.ca_necessaire:,.0f} €")
 
-        try:
-            proj = calculer_projection(
-                ca_test, 
-                metrics.marge_pct/100, 
-                ca_test * ads_pct
-            )
-
-            col1, col2 = st.columns(2)
-            delta = "✅ Rentable" if proj.is_profitable else "❌ Déficit"
-            delta_color = "normal" if proj.is_profitable else "inverse"
-
-            col1.metric(
-                "Résultat Net", 
-                f"{proj.resultat_net:,.0f} €",
-                delta=delta,
-                delta_color=delta_color
-            )
-            col2.metric("Progression 10K", f"{proj.progression_10k}%")
-            st.progress(min(proj.progression_10k / 100, 1.0))
-
-            if proj.progression_10k >= 100:
-                st.success("🎉 Objectif 10K€ atteint !")
-            elif proj.progression_10k >= 75:
-                st.info("📈 Proche de l'objectif !")
-
-        except Exception as e:
-            st.error(f"Erreur calcul: {e}")
-
-    # Info locale
+    # Info SMD
     st.divider()
     st.markdown("""
-    <div style="font-size:0.75rem; color:#666;">
-        🚲 <b>Zones actives :</b><br>
-        &nbsp;&nbsp;• Orléans (15km)<br>
-        &nbsp;&nbsp;• Tours (20km)<br>
-        &nbsp;&nbsp;• Blois (10km)<br><br>
-        📦 <b>Logistique :</b><br>
-        &nbsp;&nbsp;• FBA Orléans<br>
-        &nbsp;&nbsp;• Chronopost local<br>
-        &nbsp;&nbsp;• Livraison 48h CVL
+    <div style="font-size:0.7rem; color:#666;">
+        <b>🏢 SMD Consulting LLC</b><br>
+        Structure : Wyoming<br>
+        Portefeuille : 2 marques<br><br>
+        <b>Services :</b><br>
+        • Audit (Gratuit)<br>
+        • Setup (2-5K€)<br>
+        • Scale (1-3K€/mois)<br>
+        • Formation (500-2000€)<br>
+        • Licence IA (200-500€/mois)
     </div>
     """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------------------------
-# TABS - 5 AXES URBÆ™
+# TABS - 5 AXES SMD
 # ---------------------------------------------------------------------------
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "🎯 Stratégie", 
     "🎁 Offre", 
     "🎬 Créatives", 
     "📢 Acquisition",
-    "🤖 Agent Principal"  # ← NOUVEAU ONGLET
+    "🤖 Agent Principal"
 ])
 
 with tab1:
-    st.subheader("🎯 Plan Stratégique Hebdomadaire URBÆ™")
-    st.markdown("**Angles marketing dominants · Opportunités météo · Tendances TikTok locales**")
+    st.subheader("🎯 Plan Stratégique Hebdomadaire")
 
-    zone = st.selectbox(
-        "Zone prioritaire",
-        ["Orléans (280K hab, tech hub)", "Tours (137K hab, ville cyclable)", 
-         "Blois (46K hab, tourisme Loire)", "National (scaling)"],
-        key="zone_strat"
-    )
-
-    saison = st.selectbox(
-        "Saisonnalité",
-        ["Printemps (mars-mai)", "Été (juin-août)", 
-         "Automne (sept-nov)", "Hiver (déc-fév)"],
-        key="saison_strat"
-    )
+    col1, col2 = st.columns(2)
+    with col1:
+        marque_strat = st.selectbox(
+            "Marque",
+            ["URBÆ™", "The Apex Protocol", "Les deux (synergies)"],
+            key="marque_strat"
+        )
+    with col2:
+        zone_strat = st.selectbox(
+            "Zone",
+            ["Orléans-Blois-Tours", "France nationale", "Europe", "International (LLC)"],
+            key="zone_strat"
+        )
 
     if st.button("🎯 Générer le plan stratégique", type="primary", key="btn_strat"):
-        prompt = f"Zone: {zone}. Saison: {saison}. Génère le plan stratégique hebdomadaire URBÆ™ avec 3 angles marketing dominants."
+        prompt = f"Marque: {marque_strat}. Zone: {zone_strat}. Génère le plan stratégique hebdomadaire avec 3 angles marketing dominants."
         result = generate_with_cache("strategie", prompt)
         if not result.startswith("❌"):
             st.session_state.results['strategie'] = result
@@ -773,24 +696,18 @@ with tab1:
         st.markdown(st.session_state.results['strategie'])
 
 with tab2:
-    st.subheader("🎁 Optimisation Urban Rider Pack")
-    st.markdown("**Packs · Pricing · Bonus · Offres locales**")
+    st.subheader("🎁 Optimisation des Bundles")
 
-    pack_type = st.selectbox(
-        "Type de pack à optimiser",
-        ["Pack Solo (sacoche seule)", "Pack Duo (2 sacoches)",
-         "Urban Rider Pack (bundle premium)", "Pack Pro (complet)"],
-        key="pack_type"
-    )
-
-    prix_test = st.selectbox(
-        "Prix à tester",
-        ["139.90€", "149.90€", "159.90€", "169.90€"],
-        key="prix_test"
+    marque_offre = st.selectbox(
+        "Marque à optimiser",
+        ["URBÆ™ (Pack Solo/Duo/Urban Rider/Pro)", 
+         "The Apex Protocol (Sleep Optimization System)",
+         "Cross-sell URBÆ™ + Apex"],
+        key="marque_offre"
     )
 
     if st.button("🎁 Générer l'offre optimisée", type="primary", key="btn_offre"):
-        prompt = f"Pack: {pack_type}. Prix test: {prix_test}. Génère l'offre URBÆ™ optimisée avec bonus perçus et pricing psychologique."
+        prompt = f"Marque: {marque_offre}. Génère l'offre optimisée avec bonus perçus et pricing psychologique."
         result = generate_with_cache("offre", prompt)
         if not result.startswith("❌"):
             st.session_state.results['offre'] = result
@@ -801,23 +718,23 @@ with tab2:
 
 with tab3:
     st.subheader("🎬 Scripts UGC - 10 vidéos/semaine")
-    st.markdown("**Hooks · Démonstrations · Témoignages · Tests extrêmes**")
 
-    type_script = st.selectbox(
-        "Type de scripts",
-        ["Fierté locale (Orléans/Tours/Blois)", "Comparaison prix (vs Decathlon/Ortlieb)",
-         "Météo/Pluie (argument waterproof)", "FOMO/Saisonnalité", "Test extrême"],
-        key="type_script"
-    )
+    col1, col2 = st.columns(2)
+    with col1:
+        marque_creative = st.selectbox(
+            "Marque",
+            ["URBÆ™ (Mobilité urbaine)", "The Apex Protocol (Science sommeil)"],
+            key="marque_creative"
+        )
+    with col2:
+        plateforme = st.selectbox(
+            "Plateforme",
+            ["TikTok", "Reels", "LinkedIn", "Toutes"],
+            key="plateforme"
+        )
 
-    lieu_tournage = st.text_input(
-        "Lieu de tournage suggéré",
-        placeholder="Ex: Pont George V Orléans, Bords de Loire Blois",
-        key="lieu_tournage"
-    )
-
-    if st.button("🎬 Générer les 10 scripts", type="primary", key="btn_creatives"):
-        prompt = f"Type: {type_script}. Lieu: {lieu_tournage}. Génère 10 scripts vidéo URBÆ™ 15-30s avec hooks localisés."
+    if st.button("🎬 Générer les scripts", type="primary", key="btn_creatives"):
+        prompt = f"Marque: {marque_creative}. Plateforme: {plateforme}. Génère 10 scripts vidéo avec hooks."
         result = generate_with_cache("creatives", prompt)
         if not result.startswith("❌"):
             st.session_state.results['creatives'] = result
@@ -827,26 +744,25 @@ with tab3:
         st.markdown(st.session_state.results['creatives'])
 
 with tab4:
-    st.subheader("📢 Plan Acquisition TikTok Ads")
-    st.markdown("**CPA cible < 12€ · Ciblage hyper-local · Scale 30 jours**")
+    st.subheader("📢 Plan Acquisition")
 
-    budget_jour = st.selectbox(
-        "Budget quotidien",
-        ["20-30€ (Phase Test)", "50€ (Phase Optimisation)", 
-         "100€ (Phase Scale)", "200€+ (Scaling national)"],
-        key="budget_jour"
-    )
-
-    audience_cible = st.selectbox(
-        "Audience prioritaire",
-        ["Vélotafeurs (25-45 ans, cadres)", "Livreurs à vélo (Uber/Deliveroo)",
-         "Étudiants cyclistes", "Cyclistes loisirs (Loire à Vélo)",
-         "Digital nomades"],
-        key="audience_cible"
-    )
+    col1, col2 = st.columns(2)
+    with col1:
+        marque_acqui = st.selectbox(
+            "Marque",
+            ["URBÆ™ (CPA < 12€)", "The Apex Protocol (CPA < 45€)", "Les deux (synergies)"],
+            key="marque_acqui"
+        )
+    with col2:
+        budget_acqui = st.selectbox(
+            "Budget",
+            ["Phase Test (20-50€/jour)", "Phase Optimisation (50-100€/jour)", 
+             "Phase Scale (100-200€/jour)", "Scaling national (200€+/jour)"],
+            key="budget_acqui"
+        )
 
     if st.button("📢 Générer le plan média", type="primary", key="btn_acquisition"):
-        prompt = f"Budget: {budget_jour}. Audience: {audience_cible}. Génère le plan acquisition TikTok Ads 30 jours URBÆ™ avec CPA < 12€."
+        prompt = f"Marque: {marque_acqui}. Budget: {budget_acqui}. Génère le plan acquisition 30 jours."
         result = generate_with_cache("acquisition", prompt)
         if not result.startswith("❌"):
             st.session_state.results['acquisition'] = result
@@ -855,77 +771,73 @@ with tab4:
     elif 'acquisition' in st.session_state.results:
         st.markdown(st.session_state.results['acquisition'])
 
-# ---------------------------------------------------------------------------
-# ONGLET 5 : AGENT PRINCIPAL URBÆ™
-# ---------------------------------------------------------------------------
 with tab5:
-    st.subheader("🤖 Agent IA Principal URBÆ™")
-    st.markdown("**Branding · Tendances · Copywriting SEO · Safe vs Bold**")
+    st.subheader("🤖 Agent IA Principal SMD")
+    st.markdown("**Branding · Tendances · Copywriting SEO · Safe vs Bold vs SMD Scale**")
     st.caption("Lance ta marque e-commerce sans stock - De l'idée à la vente")
 
-    # Section 1 : Idée de l'utilisateur
-    st.markdown("### 💡 Ton idée (même vague)")
+    # Section 1 : Idée
+    st.markdown("### 💡 Ton projet")
 
     col1, col2 = st.columns(2)
     with col1:
         idee_produit = st.text_input(
             "Produit ou niche",
-            placeholder="Ex: sacoche vélo, accessoire urbain, techwear...",
+            placeholder="Ex: lampe luminothérapie, sacoche vélo, accessoire tech...",
             key="idee_produit"
         )
     with col2:
         idee_cible = st.text_input(
             "Cible envisagée",
-            placeholder="Ex: livreurs, étudiants, cadres...",
+            placeholder="Ex: biohackers, cyclistes, cadres...",
             key="idee_cible"
         )
 
     idee_zone = st.selectbox(
-        "Zone géographique",
-        ["Orléans-Blois-Tours (Loire Valley)", "Paris et banlieue", 
-         "Lyon", "Bordeaux", "Nantes", "National (France)", "International"],
+        "Zone",
+        ["Orléans-Blois-Tours (Loire Valley)", "France", "Europe", "International (LLC Wyoming)", "Global"],
         key="idee_zone"
     )
 
     idee_detail = st.text_area(
-        "Décris ton idée (plus de détails = meilleure stratégie)",
-        placeholder="Je veux lancer une marque de sacoches vélo pour les livreurs à Orléans. J'ai 500€ de budget. Je ne veux pas gérer de stock.",
+        "Décris ton idée",
+        placeholder="Je veux lancer une marque de luminothérapie pour biohackers, sans stock, avec structure LLC Wyoming...",
         height=100,
         key="idee_detail"
     )
 
-    # Section 2 : Style de réponse
+    # Section 2 : Style
     st.markdown("### 🎨 Style de stratégie")
 
     col1, col2, col3 = st.columns(3)
     with col1:
-        style_safe = st.checkbox("✅ Safe (classique, prudent)", value=True, key="style_safe")
+        style_safe = st.checkbox("✅ Safe (classique)", value=True, key="style_safe")
     with col2:
-        style_bold = st.checkbox("🔥 Bold (audacieux, disruptif)", value=True, key="style_bold")
+        style_bold = st.checkbox("🔥 Bold (disruptif)", value=True, key="style_bold")
     with col3:
-        focus_dropshipping = st.checkbox("📦 Sans stock (dropshipping/POD)", value=True, key="focus_dropshipping")
+        style_smd = st.checkbox("🏢 SMD Scale (scalable)", value=True, key="style_smd")
 
-    # Section 3 : Compétences à activer
-    st.markdown("### 🛠️ Compétences de l'Agent")
+    # Section 3 : Compétences
+    st.markdown("### 🛠️ Compétences")
 
     col1, col2, col3 = st.columns(3)
     with col1:
-        skill_branding = st.checkbox("🎨 Branding (nom, slogan, archetype)", value=True, key="skill_branding")
+        skill_branding = st.checkbox("🎨 Branding", value=True, key="skill_branding")
     with col2:
-        skill_trends = st.checkbox("📈 Tendances (analyse marché, niche)", value=True, key="skill_trends")
+        skill_trends = st.checkbox("📈 Tendances", value=True, key="skill_trends")
     with col3:
-        skill_copywriting = st.checkbox("✍️ Copywriting (fiche produit, SEO, scripts)", value=True, key="skill_copywriting")
+        skill_copywriting = st.checkbox("✍️ Copywriting", value=True, key="skill_copywriting")
 
     # Bouton génération
-    if st.button("🚀 Générer la stratégie complète", type="primary", use_container_width=True, key="btn_agent_principal"):
+    if st.button("🚀 Générer la stratégie complète", type="primary", use_container_width=True, key="btn_agent"):
 
         if not idee_produit and not idee_detail:
-            st.warning("💡 Décris au moins un produit ou une idée, même vaguement")
+            st.warning("💡 Décris au moins un produit ou une idée")
         else:
-            # Construction du prompt
             styles = []
             if style_safe: styles.append("Safe")
             if style_bold: styles.append("Bold")
+            if style_smd: styles.append("SMD Scale")
 
             skills = []
             if skill_branding: skills.append("Branding")
@@ -937,52 +849,36 @@ Cible: {idee_cible or 'Non spécifiée'}
 Zone: {idee_zone}
 Détails: {idee_detail or 'Aucun'}
 
-Styles demandés: {', '.join(styles)}
-Compétences à activer: {', '.join(skills)}
-Modèle business: {'Sans stock (dropshipping/POD)' if focus_dropshipping else 'Avec stock'}
+Styles: {', '.join(styles)}
+Compétences: {', '.join(skills)}
 
-Génère la stratégie complète URBÆ™."""
+Génère la stratégie complète SMD Consulting LLC."""
 
-            with st.spinner("🤖 Agent Principal URBÆ™ analyse votre projet... (15-30s)"):
+            with st.spinner("🤖 Agent Principal SMD analyse votre projet..."):
                 result = generate_with_cache("agent_principal", prompt)
 
             if not result.startswith("❌"):
                 st.session_state.results['agent_principal'] = result
 
-            # Affichage avec style
             st.markdown("---")
-            st.markdown("## 📋 Stratégie URBÆ™ Générée")
+            st.markdown("## 📋 Stratégie SMD Générée")
             st.markdown(result)
-
-            # Boutons d'action post-génération
-            st.markdown("---")
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                if st.button("📋 Copier la stratégie", key="copy_strat"):
-                    st.success("✅ Stratégie copiée ! (Ctrl+C)")
-            with col2:
-                if st.button("🎯 Passer à l'onglet Stratégie", key="goto_strat"):
-                    st.info("Clique sur l'onglet '🎯 Stratégie' pour détailler")
-            with col3:
-                if st.button("🎁 Passer à l'onglet Offre", key="goto_offre"):
-                    st.info("Clique sur l'onglet '🎁 Offre' pour créer le pack")
 
     elif 'agent_principal' in st.session_state.results:
         st.markdown("---")
         st.markdown("## 📋 Dernière stratégie générée")
         st.markdown(st.session_state.results['agent_principal'])
 
-    # Section exemples
-    with st.expander("💡 Exemples d'idées à tester"):
+    with st.expander("💡 Exemples d'idées"):
         st.markdown("""
-        **Exemple 1 (Safe) :** "Sacoche vélo basique pour étudiants à Orléans, 50€, sans stock"
+        **Exemple 1 (Safe) :** "Lampe luminothérapie basique pour cadres fatigués, 150€, sans stock"
 
-        **Exemple 2 (Bold) :** "Marque de techwear vélo pour livreurs, 200€ le pack, look cyberpunk"
+        **Exemple 2 (Bold) :** "Protocole circadien complet pour biohackers, 500€ le système, LLC Wyoming"
 
-        **Exemple 3 (Local) :** "Accessoires vélo en liège du Loiret, éco-responsable, premium"
+        **Exemple 3 (SMD Scale) :** "Marque de sommeil scientifique avec formation et consulting intégrés"
 
-        **Exemple 4 (Disruptif) :** "Abonnement mensuel "Box Cycliste" avec produits surprises"
+        **Exemple 4 (Local) :** "URBÆ™ + Apex : mobilité jour et sommeil nuit pour les Orléanais"
         """)
 
 st.divider()
-st.caption("URBÆ™ Brandshipping AI - Mobilité Urbaine Premium © 2026 | Orléans · Blois · Tours | Propulsé par Mistral AI")
+st.caption("SMD Consulting LLC | Brandshipping AI © 2026 | URBÆ™ · The Apex Protocol | Propulsé par Mistral AI")
