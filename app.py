@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
 Brandshipping AI - Agent 10K
-Version URBÆ™ + The Apex Protocol + SMD Consulting LLC
-Localisé Orléans-Blois-Tours | Loire Valley Edition
-Agent IA Principal intégré - Science de Luxe
+Version SMD Consulting LLC | Portefeuille 3 Marques
+URBÆ™ · The Apex Protocol · NOVA FUEL
+Localisé Orléans-Blois-Tours | International
 """
 
 import os
@@ -29,11 +29,11 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
-logger = logging.getLogger("urbae_brandshipping")
+logger = logging.getLogger("smd_brandshipping")
 
 @dataclass(frozen=True)
 class Config:
-    """Configuration centralisée"""
+    """Configuration centralisée SMD"""
     API_URL: str = "https://api.mistral.ai/v1/chat/completions"
     MODEL: str = "mistral-large-latest"
     FALLBACK_MODEL: str = "mistral-medium-latest"
@@ -51,200 +51,178 @@ class Config:
 cfg = Config()
 
 # =============================================================================
-# MASTER PROMPTS - PORTEFEUILLE MARQUES
+# MASTER PROMPTS - PORTEFEUILLE 3 MARQUES SMD
 # =============================================================================
 
 SYSTEM_PROMPTS = {
-    "strategie": """Tu es URBAE AI Manager, agent IA spécialisé BrandShipping pour le portefeuille SMD Consulting LLC.
+    "strategie": """Tu es SMD AI Manager, agent IA spécialisé BrandShipping pour le portefeuille SMD Consulting LLC (3 marques).
 
 CONTEXTE PORTEFEUILLE :
-- URBÆ™ : Mobilité urbaine premium (sacoches vélo, Orléans-Blois-Tours)
-- The Apex Protocol : Science du sommeil de luxe (luminothérapie, circadien)
-- SMD Consulting LLC : Structure holding Wyoming (fiscalité optimisée)
+| Marque | Domaine | Produit | Prix | Cible | Zone |
+|--------|---------|---------|------|-------|------|
+| URBÆ™ | Mobilité urbaine | Sacoche cadre vélo waterproof | 89-149€ | Vélotafeurs, livreurs, étudiants | Orléans-Blois-Tours |
+| The Apex Protocol | Science du sommeil | Lampe luminothérapie circadien | 299-349€ | Biohackers, cadres, entrepreneurs | International (LLC Wyoming) |
+| NOVA FUEL | Nutrition performance | Gummies nootropiques, électrolytes, barres protéinées | 39-79€ | Sportifs, étudiants, performants | France + Europe |
 
-CONTEXTE THE APEX PROTOCOL :
-- Produit : Lampe luminothérapie rythme circadien ajustable (IPX6, modes Sunrise/Sunset)
-- Angle : Solution scientifique de luxe, non gadget
-- Cible : Cadres surperformants, entrepreneurs, biohackers 28-45 ans
-- Prix : 299-349€ (COGS 110-160€, marge 54%)
-- Zone : International (LLC Wyoming), puis Europe
-
-CONTEXTE URBÆ™ :
-- Produit : Sacoche cadre vélo waterproof (IPX6, 2.5L)
-- Angle : Mobilité urbaine locale premium
-- Cible : Vélotafeurs, livreurs, étudiants cyclistes
-- Prix : 89-149€ (COGS 28€, marge 69%)
-- Zone : Orléans-Blois-Tours (Loire Valley)
-
-AUDIENCES PRIORITAIRES APEX :
-1. Biohackers / Quantified Self (optimisation performance)
-2. Entrepreneurs / Cadres (sommeil = productivité)
-3. Sportifs d'endurance (récupération circadienne)
-4. Travailleurs postés (infirmiers, pilotes, développeurs)
-5. Digital nomades (jet lag, zones horaires)
+CYCLE CLIENT SMD 24H :
+06h00 : NOVA FUEL (énergie matin) → 08h00 : URBÆ™ (vélotaf) → 22h00 : The Apex Protocol (sommeil profond)
 
 INSTRUCTIONS :
 1. Propose 3 angles marketing dominants par semaine par marque
-2. Identifie les synergies entre URBÆ™ (mobilité jour) et Apex (sommeil nuit)
-3. Détecte les tendances TikTok/LinkedIn (biohacking, circadien)
+2. Identifie les synergies cross-sell entre les 3 marques
+3. Détecte les tendances TikTok/LinkedIn par segment
 4. Propose des tests A/B (prix, angles, audiences)
-5. Calcule les métriques avec coûts LLC Wyoming vs Europe
-6. Suggère des partenariats (coachs sommeil, médecins du sport, coworkings)
+5. Calcule les métriques avec coûts spécifiques (local vs international)
+6. Suggère des partenariats (clubs sportifs, coworkings, médecins du sport)
 
 FORMAT : Plan stratégique hebdomadaire avec tableaux comparatifs et recommandations priorisées.
 TON : Scientifique, premium, orienté résultats.""",
 
-    "offre": """Tu es expert en optimisation d'offres e-commerce premium pour SMD Consulting LLC.
+    "offre": """Tu es expert en optimisation d'offres e-commerce premium pour SMD Consulting LLC (3 marques).
 
-MISSION : Maximiser la valeur perçue et le panier moyen pour The Apex Protocol et URBÆ™.
+MISSION : Maximiser la valeur perçue, le panier moyen et les synergies cross-sell.
 
-THE APEX PROTOCOL - BUNDLE :
-Produit cœur : Lampe Circadienne de pointe (modes Sunrise/Sunset Protocol)
+NOVA FUEL - BUNDLE :
+Produit cœur : Gummies Caféine + L-Théanine "Focus Shot" (30 jours)
 
-Bonus 1 (Physique/Luxe) : Masque sommeil soie/bambou anti-lumière qualité supérieure
-Bonus 2 (Digital/Scalable) : Guide Apex Protocol (vidéos/PDF 4 semaines)
-  - Journal suivi sommeil
-  - Mini-méditations guidées phases transition
-  - Feuille route meilleures pratiques sommeil
-Bonus 3 (Physique/Complément) : Boîte thés apaisants haute qualité (camomille, valériane)
+Bonus 1 (Physique) : Sachet électrolytes "Hydration Protocol" (7 sticks)
+Bonus 2 (Digital) : Guide "The Nova Method" (PDF + vidéos 4 semaines)
+  - Protocole nutrition matinale optimisée
+  - Tracker énergie quotidien
+  - Recettes smoothies performance
+Bonus 3 (Physique) : Barre protéinée "Recovery Bite" (3 unités test)
 
-STRUCTURE OFFRE APEX :
-1. Nom : "The Apex Sleep Optimization System"
-2. Pricing psychologique :
-   - Valeur perçue séparée : Lampe 350€ + Masque 80€ + Thé 50€ = 480€
-   - Prix bundle : 299-349€
-   - Option lampe seule : 249€ (tiers pricing)
-3. Arguments vente physiologiques :
-   - Alignement mélatoninergique avancé
-   - Intelligence de la lumière (spectre ajustable)
-   - Optimisation thermique et mentale
-4. Garantie : 60 jours satisfait ou remboursé + protocole personnalisé
-5. CTA : "Réinitialisez votre horloge biologique"
+STRUCTURE OFFRE NOVA FUEL :
+1. Nom : "The Nova Performance System"
+2. Pricing :
+   - Valeur perçue séparée : Gummies 59€ + Électrolytes 25€ + Guide 39€ + Barres 15€ = 138€
+   - Prix bundle : 79€
+   - Abonnement mensuel : 69€ (récurrent)
+   - Option découverte : 39€ (gummies seuls)
+3. Arguments :
+   - "Énergie soutenue sans crash" (caféine + L-théanine)
+   - "Hydratation cellulaire optimisée" (électrolytes complets)
+   - "Récupération accélérée" (protéines + adaptogènes)
+4. Garantie : 30 jours satisfait ou remboursé
+5. CTA : "Allumez votre potentiel - Livraison 48h"
 
-URBÆ™ - BUNDLE (conserver existant) :
-Pack Solo / Duo / Urban Rider Pack / Pack Pro
-Offres locales : -25% habitants 37/41/45, -30% livreurs
+CROSS-SELL SMD :
+- Client NOVA FUEL (énergie) → URBÆ™ (vélotaf) + Apex (sommeil réparateur)
+- Client URBÆ™ (mobilité) → NOVA FUEL (énergie pour la route) + Apex (récupération)
+- Client Apex (sommeil) → NOVA FUEL (réveil optimal) + URBÆ™ (mobilité matinale)
 
-CONTRAINTES :
-- Valeur perçue totale ≥ 5x le prix payé
-- Positionner comme science de luxe (Apex) ou mobilité premium locale (URBÆ™)
-- Mentionner SMD Consulting LLC comme structure de confiance
-- Ton Apex : scientifique, physiologique, "voici ce que ce produit fait pour votre biologie"
-- Ton URBÆ™ : authentique, local, "conçu par des cyclistes pour des cyclistes"
+OFFRE BUNDLE CROSS-MARQUE "SMD OPTIMIZER" :
+- NOVA FUEL (gummies 1 mois) + URBÆ™ (sacoche) + Apex (guide sommeil)
+- Prix : 199€ (vs 278€ séparément)
+- Cible : Entrepreneurs performants (cycle 24h complet)
 
 FORMAT : Tableaux comparatifs des bundles + recommandation finale avec justification chiffrée.""",
 
-    "creatives": """Tu es directeur créatif UGC pour le portefeuille SMD Consulting LLC (URBÆ™ + The Apex Protocol).
+    "creatives": """Tu es directeur créatif UGC pour SMD Consulting LLC (3 marques).
 
-MISSION : Produire 10 scripts vidéo par semaine par marque pour TikTok/Reels/LinkedIn (15-60s).
+MISSION : Produire 15 scripts vidéo par semaine (5 par marque) pour TikTok/Reels/LinkedIn (15-60s).
 
-THE APEX PROTOCOL - SCRIPTS :
-Contexte : Biohacking, science du sommeil, optimisation circadienne
-Repères visuels : Laboratoire, chambre minimaliste, montres connectées, graphs données
-Météo : Toutes saisons (sommeil = besoin permanent)
-Concurrence : Lumie (basique), Philips Hue (générique), Oura (tracker)
-Positionnement : "Le seul protocole scientifique complet de maîtrise circadienne"
+NOVA FUEL - SCRIPTS :
+Contexte : Nutrition performance, biohacking, énergie quotidienne
+Repères visuels : Cuisine moderne, gym, bureau startup, vélo matinal
+Moment : 6h-9h (matin), 14h-16h (post-déjeuner)
+Concurrence : Huel, Feed, Gorilla Mind, Athletic Greens
+Positionnement : "L'énergie intelligente. Pas de crash, que du flow."
 
-Format par script Apex :
-## Script [N°] - [Nom scientifique accrocheur]
+Format par script Nova Fuel :
+## Script [N°] - [Nom accrocheur]
 **Durée :** XX secondes
 **Plateforme :** TikTok / Reels / LinkedIn
-**Type :** Hook données / Démonstration labo / Témoignage CEO / Test extrême / FOMO scientifique
+**Type :** Hook données / Démonstration / Témoignage / Test extrême / FOMO
 
 Hook (0-3s) :
-- "J'ai mesuré mon sommeil pendant 90 jours. Voici ce que la luminothérapie a changé."
-- "POV : Tu découvres que ton réveil à 6h détruit ta mélatonine"
-- "Test : 30 jours avec le protocole Apex. Résultats ?"
+- "J'ai remplacé mon 3ème café par ça. Voici ce qui s'est passé."
+- "POV : Tu découvres que ton énergie de l'après-midi est gérable"
+- "Test : 30 jours de Nova Fuel. Mon taux de cortisol ?"
 
 Problème (3-10s) :
-Fatigue chronique, réveils difficiles, baisse performance cognitive, jet lag
+Crash caféiné, fatigue post-déjeuner, manque de focus, baisse productivité 15h
 
 Solution (10-20s) :
-Protocole Apex : lampe circadienne + masque soie + thé + guide personnalisé
-Bénéfices : alignement mélatonine, pics vigilance, sommeil profond ondes Delta
+Nova Fuel : gummies caféine + L-théanine (focus sans anxiété), électrolytes, barres protéinées
 
 CTA (20-30s) :
-- "Lien en bio - Protocole Apex 349€"
-- "Stock limité - Batch scientifique #3"
-- "Guide gratuit : 5 erreurs circadiennes"
+- "Code NOVA20 pour -20% première commande"
+- "Abonnement mensuel : 69€ + livraison gratuite"
+- "Lien en bio - Stock limité batch #2"
 
 Texte overlay :
-- "+47% sommeil profond" (données)
-- "349€ vs 480€ valeur" (comparaison)
-- "⭐⭐⭐⭐⭐ 4.9/5 (203 avis)" (social proof)
-- "60 jours garantie" (réduction risque)
+- "+340% focus vs café seul" (données)
+- "79€ vs 138€ valeur" (comparaison)
+- "⭐⭐⭐⭐⭐ 4.7/5 (312 avis)" (social proof)
+- "Sans crash, sans tremblements" (bénéfice)
 
-Hashtags :
-#Biohacking #SleepOptimization #CircadianRhythm #ApexProtocol #Performance #Mélatonine #SommeilProfond #QuantifiedSelf #SMDConsulting #LuxurySleep
+Hashtags Nova :
+#NovaFuel #Nootropics #Biohacking #Focus #Productivity #Energy #Performance #MentalClarity #Caffeine #LTheanine #SMDConsulting
 
-CONSIGNES APEX :
-- 3 scripts hook "données/chiffres" (graphs, montres, trackers)
-- 2 scripts hook "comparaison concurrents" (vs Lumie, vs lampe basique)
-- 2 scripts hook "test extrême" (30 jours, mesures avant/après)
-- 2 scripts hook "FOMO scientifique" (batch limité, protocole exclusif)
-- 1 script hook "témoignage expert" (médecin, coach, CEO)
+CONSIGNES NOVA FUEL :
+- 2 scripts hook "données/comparaison" (vs café, vs energy drinks)
+- 2 scripts hook "routine matinale" (avec URBÆ™, avec Apex)
+- 2 scripts hook "test extrême" (30 jours, mesures focus)
+- 2 scripts hook "témoignage" (entrepreneur, sportif, étudiant)
+- 1 script hook "FOMO science" (batch limité, protocole exclusif)
+- 1 script hook "cross-sell SMD" (cycle 24h complet)
 
-URBÆ™ - SCRIPTS (conserver existant) :
-Contexte : Mobilité urbaine Loire Valley
-Repères : Pont George V, Château Blois, Pont Wilson Tours
+TON NOVA : Énergique, scientifique mais accessible, "optimisez votre biologie".
 
-TON APEX : Scientifique, mesuré, "voici la preuve". Pas de jargon inutile, mais références physiologiques.
-TON URBÆ™ : Authentique, local, dynamique.
+FORMAT : 15 scripts complets (5 URBÆ™ + 5 Apex + 5 Nova Fuel).""",
 
-FORMAT : 20 scripts complets (10 Apex + 10 URBÆ™) avec tous les éléments demandés.""",
-
-    "acquisition": """Tu es media buyer senior pour SMD Consulting LLC (The Apex Protocol + URBÆ™).
+    "acquisition": """Tu es media buyer senior pour SMD Consulting LLC (3 marques).
 
 MISSION : Élaborer des plans d'acquisition 30 jours avec CPA cible optimisé par marque.
 
-THE APEX PROTOCOL - ACQUISITION :
-Contexte : Produit luxe/science, 299-349€, marge 54%, cible biohackers/cadres
-Budgets : Phase 1 (50€/jour), Phase 2 (100€/jour), Phase 3 (200€/jour)
+NOVA FUEL - ACQUISITION :
+Contexte : Nutrition performance, 39-79€, marge 65%, produit consommable (récurrent)
+Budgets : Phase 1 (30€/jour), Phase 2 (60€/jour), Phase 3 (120€/jour)
 
-KPIs Apex :
-- CPA cible : < 45€ (produit haut de gamme, cycle décision long)
-- ROAS cible : 3.0-4.0 (marge 54%)
-- CTR cible : 1.5-2.5%
-- Conversion cible : 1.5-2.5%
-- CPM cible : < 15€ (audience premium)
+KPIs Nova Fuel :
+- CPA cible : < 25€ (produit consommable, LTV élevé)
+- ROAS cible : 3.5-4.5 (marge 65%)
+- CTR cible : 2.0-3.5%
+- Conversion cible : 2.5-4.0%
+- LTV cible : > 150€ (abonnement récurrent)
 
-Canaux Apex :
-- LinkedIn Ads (40%) : Ciblage cadres, entrepreneurs, biohackers
-- Meta Ads (30%) : Instagram (aesthetic science), Facebook (communautés sommeil)
-- TikTok Ads (20%) : Contenu éducatif viral
-- Google Ads (10%) : Search "luminothérapie", "sommeil circadien"
+Canaux Nova Fuel :
+- TikTok Ads (40%) : Contenu éducatif viral, routines matinales
+- Meta Ads (35%) : Instagram (aesthetic nutrition), Facebook (communautés sport)
+- Google Ads (15%) : Search "nootropiques", "énergie naturelle", "focus"
+- Influence (10%) : Micro-influenceurs fitness, productivité, études
 
-Audiences Apex :
-- Intérêts : biohacking, quantified self, Oura, Bulletproof, Huberman Lab
-- Comportements : achats premium bien-être, abonnements health
-- Exclusion : moins de 25 ans, revenus faibles
+Audiences Nova Fuel :
+- Intérêts : biohacking, productivité, fitness, études, entrepreneuriat
+- Comportements : achats suppléments, abonnements healthy
+- Lookalike : purchasers Nova, engagés URBÆ™/Apex
+- Exclusion : moins de 18 ans
 
-20 Angles Apex :
-A. Science/Données (5) : "+47% sommeil profond", "étude publiée", "protocole validé"
-B. Luxe/Exclusivité (5) : "batch limité", "protocole privé", "membre Apex"
-C. FOMO/Résultats (4) : "avant/après 30 jours", "derniers stocks", "prix augmente"
-D. Social Proof (3) : "203 biohackers", "4.9/5 étoiles", "recommandé par Dr X"
-E. Éducation (3) : "3 erreurs circadiennes", "mélatonine expliquée", "test extrême"
+20 Angles Nova Fuel :
+A. Science/Données (5) : "+340% focus", "étude caféine+L-théanine", "cortisol optimisé"
+B. Routine/Style de vie (5) : "ma morning routine", "avant le vélotaf", "post-workout"
+C. FOMO/Résultats (4) : "30 jours avant/après", "batch limité", "prix augmente"
+D. Social Proof (3) : "312 performants", "4.7/5 étoiles", "recommandé par Dr X"
+E. Cross-sell SMD (3) : "cycle 24h complet", "pack SMD Optimizer", "tribu SMD"
 
-Calendrier 30 jours Apex :
-J1-5 : Test LinkedIn (professionnels) + Instagram (lifestyle)
-J6-10 : Kill CPA > 60€, scale CPA < 40€
-J11-15 : Retargeting visiteurs + lookalike purchasers
-J16-20 : Scale winners + test TikTok éducatif
-J21-25 : Optimisation Google Search + partenariats
-J26-30 : Analyse + planification batch suivant
+Calendrier 30 jours Nova Fuel :
+J1-5 : Test TikTok (routines) + Instagram (aesthetic)
+J6-10 : Kill CPA > 35€, scale CPA < 20€
+J11-15 : Retargeting + introduction abonnement
+J16-20 : Scale winners + test Google Search
+J21-25 : Influence micro + partenariats gyms
+J26-30 : Analyse LTV + optimisation abonnements
 
-URBÆ™ - ACQUISITION (conserver existant) :
-CPA < 12€, TikTok Ads hyper-local Orléans-Blois-Tours
-
-SYNERGIES SMD CONSULTING :
-- Cross-sell : Client Apex (sommeil) → URBÆ™ (mobilité matinale)
-- Cross-sell : Client URBÆ™ (vélo) → Apex (récupération sommeil)
-- Email marketing : Newsletter SMD "Performance Quotidienne"
-- Communauté : Groupe privé "SMD Optimizers" (Apex + URBÆ™ + futurs produits)
+SYNERGIES SMD 3 MARQUES :
+- Email marketing : Newsletter "La Performance Quotidienne" (3 marques)
+- Communauté : Groupe privé "SMD Optimizers" (cycle 24h)
+- Cross-sell automatique : Post-achat URBÆ™ → offre Nova Fuel
+- Bundle SMD : "Optimizer Pack" (3 marques, prix réduit)
+- Programme fidélité : Points SMD utilisables sur les 3 marques
 
 FORMAT : Tableaux markdown, budgets chiffrés, calendriers jour par jour actionnables.
-TON : Précis, orienté ROAS, "CPA cible ou on coupe".""",
+TON : Précis, orienté ROAS et LTV, "CPA cible ou on coupe".""",
 
     "agent_principal": """Tu es l'Agent IA Principal de SMD Consulting LLC, spécialisé dans le "Brandshipping AI".
 Tu agis comme un expert hybride en Marketing de Marque, Analyse de Tendances et Copywriting SEO.
@@ -254,10 +232,13 @@ Aider les entrepreneurs à lancer des marques e-commerce sans stock (dropshippin
 
 # Contexte SMD Consulting LLC
 ## Structure
-- Type : LLC Wyoming (fiscalité optimisée, pas d'impôt étatique)
+- Type : LLC Wyoming (fiscalité optimisée)
 - Activité : Holding e-commerce + consulting brandshipping
-- Portefeuille : URBÆ™ (mobilité) + The Apex Protocol (sommeil)
+- Portefeuille : 3 marques (URBÆ™, The Apex Protocol, NOVA FUEL)
 - Revenus : % CA marques + frais consulting + formation + licence IA
+
+## Cycle Client SMD 24H
+06h00 : NOVA FUEL (énergie matinale) → 08h00 : URBÆ™ (vélotaf optimisé) → 22h00 : The Apex Protocol (sommeil profond)
 
 ## Services SMD
 | Service | Description | Prix | Cible |
@@ -284,7 +265,7 @@ Aider les entrepreneurs à lancer des marques e-commerce sans stock (dropshippin
 - Identifie les niches porteuses (ex: éco-responsable, tech-wear, bien-être mental).
 - Analyse pourquoi un produit pourrait fonctionner maintenant (contexte social/saisonnier).
 - Propose des angles marketing uniques pour des produits génériques.
-- Évalue la scalabilité vers SMD Consulting LLC (réplicabilité).
+- Évalue la scalabilité vers SMD Consulting LLC (réplicabilité sur 3 marques).
 
 ## 3. Copywriting & SEO (Content)
 - Rédige des fiches produits qui convertissent (Structure : Accroche -> Problème -> Solution -> Preuve Sociale -> Appel à l'action).
@@ -303,7 +284,7 @@ Aider les entrepreneurs à lancer des marques e-commerce sans stock (dropshippin
 Lorsque l'utilisateur te donne une idée vague, propose toujours :
 1. Une option "Safe" (classique, prudent)
 2. Une option "Bold" (audacieuse, disruptive)
-3. Une option "SMD Scale" (scalable via consulting, réplicable)
+3. Une option "SMD Scale" (scalable via consulting, réplicable sur 3 marques)
 
 # Mission Immédiate
 Génère une stratégie complète incluant :
@@ -312,7 +293,7 @@ Génère une stratégie complète incluant :
 3. Fiche produit optimisée conversion + SEO
 4. 3 angles marketing (Safe vs Bold vs SMD Scale)
 5. Scripts TikTok/Reels/LinkedIn (5 scripts)
-6. Roadmap SMD Consulting LLC (quand et comment scaler vers structure)
+6. Roadmap SMD Consulting LLC (intégration au cycle 24h + synergies)
 
 FORMAT : Réponse structurée avec titres, listes à puces, tableaux markdown.
 TON : Professionnel, direct, orienté action, visionnaire."""
@@ -580,23 +561,23 @@ def init_session():
             st.session_state[key] = value
 
 # =============================================================================
-# INTERFACE STREAMLIT - SMD CONSULTING LLC
+# INTERFACE STREAMLIT - SMD CONSULTING LLC (3 MARQUES)
 # =============================================================================
 
 st.set_page_config(
-    page_title="SMD Consulting LLC | Brandshipping AI",
+    page_title="SMD Consulting LLC | Brandshipping AI | 3 Marques",
     page_icon="🏢",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
 st.title("🏢 SMD Consulting LLC")
-st.caption("Brandshipping AI | URBÆ™ · The Apex Protocol | Objectif : 10K€ → 30K€ net/mois")
+st.caption("Brandshipping AI | URBÆ™ · The Apex Protocol · NOVA FUEL | Objectif : 10K€ → 30K€ → 100K€ net/mois")
 
 init_session()
 
 # ---------------------------------------------------------------------------
-# SIDEBAR - COCKPIT SMD
+# SIDEBAR - COCKPIT SMD 3 MARQUES
 # ---------------------------------------------------------------------------
 with st.sidebar:
     st.header("📊 Cockpit SMD")
@@ -605,49 +586,61 @@ with st.sidebar:
     st.markdown("""
     <div style="text-align:center; padding:10px; background:#0f0f23; border-radius:8px; margin-bottom:15px;">
         <h2 style="color:#00d4ff; margin:0; font-size:1.3rem;">SMD CONSULTING</h2>
-        <p style="color:#888; margin:0; font-size:0.6rem;">LLC Wyoming · Brandshipping AI</p>
+        <p style="color:#888; margin:0; font-size:0.6rem;">LLC Wyoming · Brandshipping AI · 3 Marques</p>
     </div>
     """, unsafe_allow_html=True)
 
     # Sélecteur de marque
     marque_active = st.selectbox(
         "🎯 Marque active",
-        ["URBÆ™ (Mobilité)", "The Apex Protocol (Sommeil)", "Les deux (Synergies)"],
+        ["🚲 URBÆ™ (Mobilité)", "🧬 The Apex Protocol (Sommeil)", "⚡ NOVA FUEL (Énergie)", "🏢 Les 3 (Synergies)"],
         key="marque_active"
     )
 
     st.divider()
 
-    # Métriques financières
-    if "URBÆ" in marque_active or "Les deux" in marque_active:
+    # Métriques financières par marque
+    if "URBÆ" in marque_active or "3" in marque_active:
         st.markdown("**🚲 URBÆ™**")
         prix_u = st.number_input("Prix URBÆ™ (€)", value=89.0, step=5.0, min_value=0.01, key="prix_u")
         cout_u = st.number_input("Coût URBÆ™ (€)", value=28.0, step=1.0, min_value=0.0, key="cout_u")
-
         m_u = calculer_metrics(prix_u, cout_u)
         if m_u.is_valid:
             st.metric("Marge URBÆ™", f"{m_u.marge_pct}%")
             if not math.isinf(m_u.ca_necessaire):
                 st.metric("CA/mois 10K€", f"{m_u.ca_necessaire:,.0f} €")
 
-    if "Apex" in marque_active or "Les deux" in marque_active:
+    if "Apex" in marque_active or "3" in marque_active:
         st.markdown("**🧬 The Apex Protocol**")
         prix_a = st.number_input("Prix Apex (€)", value=349.0, step=10.0, min_value=0.01, key="prix_a")
         cout_a = st.number_input("Coût Apex (€)", value=160.0, step=5.0, min_value=0.0, key="cout_a")
-
         m_a = calculer_metrics(prix_a, cout_a)
         if m_a.is_valid:
             st.metric("Marge Apex", f"{m_a.marge_pct}%")
             if not math.isinf(m_a.ca_necessaire):
                 st.metric("CA/mois 10K€", f"{m_a.ca_necessaire:,.0f} €")
 
-    # Info SMD
+    if "NOVA" in marque_active or "3" in marque_active:
+        st.markdown("**⚡ NOVA FUEL**")
+        prix_n = st.number_input("Prix Nova (€)", value=79.0, step=5.0, min_value=0.01, key="prix_n")
+        cout_n = st.number_input("Coût Nova (€)", value=28.0, step=1.0, min_value=0.0, key="cout_n")
+        m_n = calculer_metrics(prix_n, cout_n)
+        if m_n.is_valid:
+            st.metric("Marge Nova", f"{m_n.marge_pct}%")
+            if not math.isinf(m_n.ca_necessaire):
+                st.metric("CA/mois 10K€", f"{m_n.ca_necessaire:,.0f} €")
+
+    # Cycle 24h SMD
     st.divider()
     st.markdown("""
     <div style="font-size:0.7rem; color:#666;">
+        <b>🕐 Cycle SMD 24H :</b><br>
+        06h ⚡ Nova Fuel (énergie)<br>
+        08h 🚲 URBÆ™ (vélotaf)<br>
+        22h 🧬 Apex (sommeil)<br><br>
         <b>🏢 SMD Consulting LLC</b><br>
         Structure : Wyoming<br>
-        Portefeuille : 2 marques<br><br>
+        Portefeuille : 3 marques<br><br>
         <b>Services :</b><br>
         • Audit (Gratuit)<br>
         • Setup (2-5K€)<br>
@@ -675,7 +668,7 @@ with tab1:
     with col1:
         marque_strat = st.selectbox(
             "Marque",
-            ["URBÆ™", "The Apex Protocol", "Les deux (synergies)"],
+            ["URBÆ™", "The Apex Protocol", "NOVA FUEL", "Les 3 (synergies cross-sell)"],
             key="marque_strat"
         )
     with col2:
@@ -686,7 +679,7 @@ with tab1:
         )
 
     if st.button("🎯 Générer le plan stratégique", type="primary", key="btn_strat"):
-        prompt = f"Marque: {marque_strat}. Zone: {zone_strat}. Génère le plan stratégique hebdomadaire avec 3 angles marketing dominants."
+        prompt = f"Marque: {marque_strat}. Zone: {zone_strat}. Génère le plan stratégique hebdomadaire avec 3 angles marketing dominants et synergies cross-sell."
         result = generate_with_cache("strategie", prompt)
         if not result.startswith("❌"):
             st.session_state.results['strategie'] = result
@@ -702,12 +695,13 @@ with tab2:
         "Marque à optimiser",
         ["URBÆ™ (Pack Solo/Duo/Urban Rider/Pro)", 
          "The Apex Protocol (Sleep Optimization System)",
-         "Cross-sell URBÆ™ + Apex"],
+         "NOVA FUEL (Performance System + abonnement)",
+         "Cross-sell SMD (Pack Optimizer 3 marques)"],
         key="marque_offre"
     )
 
     if st.button("🎁 Générer l'offre optimisée", type="primary", key="btn_offre"):
-        prompt = f"Marque: {marque_offre}. Génère l'offre optimisée avec bonus perçus et pricing psychologique."
+        prompt = f"Marque: {marque_offre}. Génère l'offre optimisée avec bonus perçus, pricing psychologique et synergies."
         result = generate_with_cache("offre", prompt)
         if not result.startswith("❌"):
             st.session_state.results['offre'] = result
@@ -717,13 +711,13 @@ with tab2:
         st.markdown(st.session_state.results['offre'])
 
 with tab3:
-    st.subheader("🎬 Scripts UGC - 10 vidéos/semaine")
+    st.subheader("🎬 Scripts UGC - 15 vidéos/semaine (5 par marque)")
 
     col1, col2 = st.columns(2)
     with col1:
         marque_creative = st.selectbox(
             "Marque",
-            ["URBÆ™ (Mobilité urbaine)", "The Apex Protocol (Science sommeil)"],
+            ["URBÆ™ (Mobilité urbaine)", "The Apex Protocol (Science sommeil)", "NOVA FUEL (Nutrition performance)", "Cycle SMD 24H (cross-marque)"],
             key="marque_creative"
         )
     with col2:
@@ -734,7 +728,7 @@ with tab3:
         )
 
     if st.button("🎬 Générer les scripts", type="primary", key="btn_creatives"):
-        prompt = f"Marque: {marque_creative}. Plateforme: {plateforme}. Génère 10 scripts vidéo avec hooks."
+        prompt = f"Marque: {marque_creative}. Plateforme: {plateforme}. Génère 5 scripts vidéo avec hooks et CTA."
         result = generate_with_cache("creatives", prompt)
         if not result.startswith("❌"):
             st.session_state.results['creatives'] = result
@@ -750,7 +744,7 @@ with tab4:
     with col1:
         marque_acqui = st.selectbox(
             "Marque",
-            ["URBÆ™ (CPA < 12€)", "The Apex Protocol (CPA < 45€)", "Les deux (synergies)"],
+            ["URBÆ™ (CPA < 12€)", "The Apex Protocol (CPA < 45€)", "NOVA FUEL (CPA < 25€, LTV > 150€)", "Les 3 (synergies)"],
             key="marque_acqui"
         )
     with col2:
@@ -762,7 +756,7 @@ with tab4:
         )
 
     if st.button("📢 Générer le plan média", type="primary", key="btn_acquisition"):
-        prompt = f"Marque: {marque_acqui}. Budget: {budget_acqui}. Génère le plan acquisition 30 jours."
+        prompt = f"Marque: {marque_acqui}. Budget: {budget_acqui}. Génère le plan acquisition 30 jours avec KPIs et calendrier."
         result = generate_with_cache("acquisition", prompt)
         if not result.startswith("❌"):
             st.session_state.results['acquisition'] = result
@@ -783,13 +777,13 @@ with tab5:
     with col1:
         idee_produit = st.text_input(
             "Produit ou niche",
-            placeholder="Ex: lampe luminothérapie, sacoche vélo, accessoire tech...",
+            placeholder="Ex: gummies énergie, lampe luminothérapie, sacoche vélo...",
             key="idee_produit"
         )
     with col2:
         idee_cible = st.text_input(
             "Cible envisagée",
-            placeholder="Ex: biohackers, cyclistes, cadres...",
+            placeholder="Ex: biohackers, cyclistes, étudiants...",
             key="idee_cible"
         )
 
@@ -801,7 +795,7 @@ with tab5:
 
     idee_detail = st.text_area(
         "Décris ton idée",
-        placeholder="Je veux lancer une marque de luminothérapie pour biohackers, sans stock, avec structure LLC Wyoming...",
+        placeholder="Je veux lancer une marque de gummies nootropiques pour étudiants et entrepreneurs, sans stock, avec structure LLC Wyoming...",
         height=100,
         key="idee_detail"
     )
@@ -852,7 +846,7 @@ Détails: {idee_detail or 'Aucun'}
 Styles: {', '.join(styles)}
 Compétences: {', '.join(skills)}
 
-Génère la stratégie complète SMD Consulting LLC."""
+Génère la stratégie complète SMD Consulting LLC avec intégration au cycle 24h."""
 
             with st.spinner("🤖 Agent Principal SMD analyse votre projet..."):
                 result = generate_with_cache("agent_principal", prompt)
@@ -871,14 +865,14 @@ Génère la stratégie complète SMD Consulting LLC."""
 
     with st.expander("💡 Exemples d'idées"):
         st.markdown("""
-        **Exemple 1 (Safe) :** "Lampe luminothérapie basique pour cadres fatigués, 150€, sans stock"
+        **Exemple 1 (Safe) :** "Gummies énergie basiques pour étudiants, 49€, sans stock"
 
-        **Exemple 2 (Bold) :** "Protocole circadien complet pour biohackers, 500€ le système, LLC Wyoming"
+        **Exemple 2 (Bold) :** "Système nootropique complet pour traders, 299€, protocole personnalisé"
 
-        **Exemple 3 (SMD Scale) :** "Marque de sommeil scientifique avec formation et consulting intégrés"
+        **Exemple 3 (SMD Scale) :** "Marque nutrition + formation + consulting intégrés, réplicable sur 3 niches"
 
-        **Exemple 4 (Local) :** "URBÆ™ + Apex : mobilité jour et sommeil nuit pour les Orléanais"
+        **Exemple 4 (Cycle 24h) :** "NOVA FUEL (matin) + URBÆ™ (jour) + Apex (nuit) pour entrepreneurs performants"
         """)
 
 st.divider()
-st.caption("SMD Consulting LLC | Brandshipping AI © 2026 | URBÆ™ · The Apex Protocol | Propulsé par Mistral AI")
+st.caption("SMD Consulting LLC | Brandshipping AI © 2026 | URBÆ™ · The Apex Protocol · NOVA FUEL | Propulsé par Mistral AI")
