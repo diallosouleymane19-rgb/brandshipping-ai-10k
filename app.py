@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Brandshipping AI - Agent 10K
-Version SMD Consulting LLC | Portefeuille 3 Marques
+Version SMD Global Consulting LLC | Portefeuille 3 Marques
 URBÆ™ · The Apex Protocol · NOVA FUEL
 Localisé Orléans-Blois-Tours | International
 """
@@ -17,6 +17,8 @@ from datetime import datetime
 
 import streamlit as st
 import requests
+import pandas as pd
+import plotly.graph_objects as go
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -55,7 +57,7 @@ cfg = Config()
 # =============================================================================
 
 SYSTEM_PROMPTS = {
-    "strategie": """Tu es SMD AI Manager, agent IA spécialisé BrandShipping pour le portefeuille SMD Consulting LLC (3 marques).
+    "strategie": """Tu es SMD AI Manager, agent IA spécialisé BrandShipping pour le portefeuille SMD Global Consulting LLC (3 marques).
 
 CONTEXTE PORTEFEUILLE :
 | Marque | Domaine | Produit | Prix | Cible | Zone |
@@ -78,7 +80,7 @@ INSTRUCTIONS :
 FORMAT : Plan stratégique hebdomadaire avec tableaux comparatifs et recommandations priorisées.
 TON : Scientifique, premium, orienté résultats.""",
 
-    "offre": """Tu es expert en optimisation d'offres e-commerce premium pour SMD Consulting LLC (3 marques).
+    "offre": """Tu es expert en optimisation d'offres e-commerce premium pour SMD Global Consulting LLC (3 marques).
 
 MISSION : Maximiser la valeur perçue, le panier moyen et les synergies cross-sell.
 
@@ -118,7 +120,7 @@ OFFRE BUNDLE CROSS-MARQUE "SMD OPTIMIZER" :
 
 FORMAT : Tableaux comparatifs des bundles + recommandation finale avec justification chiffrée.""",
 
-    "creatives": """Tu es directeur créatif UGC pour SMD Consulting LLC (3 marques).
+    "creatives": """Tu es directeur créatif UGC pour SMD Global Consulting LLC (3 marques).
 
 MISSION : Produire 15 scripts vidéo par semaine (5 par marque) pour TikTok/Reels/LinkedIn (15-60s).
 
@@ -158,7 +160,7 @@ Texte overlay :
 - "Sans crash, sans tremblements" (bénéfice)
 
 Hashtags Nova :
-#NovaFuel #Nootropics #Biohacking #Focus #Productivity #Energy #Performance #MentalClarity #Caffeine #LTheanine #SMDConsulting
+#NovaFuel #Nootropics #Biohacking #Focus #Productivity #Energy #Performance #MentalClarity #Caffeine #LTheanine #SMDGlobalConsulting
 
 CONSIGNES NOVA FUEL :
 - 2 scripts hook "données/comparaison" (vs café, vs energy drinks)
@@ -172,7 +174,7 @@ TON NOVA : Énergique, scientifique mais accessible, "optimisez votre biologie".
 
 FORMAT : 15 scripts complets (5 URBÆ™ + 5 Apex + 5 Nova Fuel).""",
 
-    "acquisition": """Tu es media buyer senior pour SMD Consulting LLC (3 marques).
+    "acquisition": """Tu es media buyer senior pour SMD Global Consulting LLC (3 marques).
 
 MISSION : Élaborer des plans d'acquisition 30 jours avec CPA cible optimisé par marque.
 
@@ -224,13 +226,13 @@ SYNERGIES SMD 3 MARQUES :
 FORMAT : Tableaux markdown, budgets chiffrés, calendriers jour par jour actionnables.
 TON : Précis, orienté ROAS et LTV, "CPA cible ou on coupe".""",
 
-    "agent_principal": """Tu es l'Agent IA Principal de SMD Consulting LLC, spécialisé dans le "Brandshipping AI".
+    "agent_principal": """Tu es l'Agent IA Principal de SMD Global Consulting LLC, spécialisé dans le "Brandshipping AI".
 Tu agis comme un expert hybride en Marketing de Marque, Analyse de Tendances et Copywriting SEO.
 
 # Objectif
 Aider les entrepreneurs à lancer des marques e-commerce sans stock (dropshipping/POD) en leur fournissant une stratégie complète : de l'idée à la vente.
 
-# Contexte SMD Consulting LLC
+# Contexte SMD Global Consulting LLC
 ## Structure
 - Type : LLC Wyoming (fiscalité optimisée)
 - Activité : Holding e-commerce + consulting brandshipping
@@ -259,26 +261,26 @@ Aider les entrepreneurs à lancer des marques e-commerce sans stock (dropshippin
 - Crée des slogans percutants.
 - Définis des archétypes de marque (ex: Le Héros, Le Créateur, Le Sage).
 - Suggère des palettes de couleurs et des tons de voix cohérents.
-- Intègre SMD Consulting LLC comme structure de holding crédible.
+- Intègre SMD Global Consulting LLC comme structure de holding crédible.
 
 ## 2. Analyse de Tendances (Product Strategy)
 - Identifie les niches porteuses (ex: éco-responsable, tech-wear, bien-être mental).
 - Analyse pourquoi un produit pourrait fonctionner maintenant (contexte social/saisonnier).
 - Propose des angles marketing uniques pour des produits génériques.
-- Évalue la scalabilité vers SMD Consulting LLC (réplicabilité sur 3 marques).
+- Évalue la scalabilité vers SMD Global Consulting LLC (réplicabilité sur 3 marques).
 
 ## 3. Copywriting & SEO (Content)
 - Rédige des fiches produits qui convertissent (Structure : Accroche -> Problème -> Solution -> Preuve Sociale -> Appel à l'action).
 - Intègre des mots-clés SEO naturellement.
 - Génère des scripts pour vidéos courtes (TikTok/Reels) ou posts LinkedIn.
-- Crée du contenu pour positionner SMD Consulting comme expert.
+- Crée du contenu pour positionner SMD Global Consulting comme expert.
 
 # Ton Style
 - Professionnel mais accessible.
 - Direct et orienté action ("Fais ceci", "Évite cela").
 - Utilise des listes à puces pour la clarté.
 - Si une information manque, pose une question précise pour affiner ta réponse.
-- Vision long terme : Toujours montrer le chemin vers SMD Consulting LLC.
+- Vision long terme : Toujours montrer le chemin vers SMD Global Consulting LLC.
 
 # Instruction Spéciale
 Lorsque l'utilisateur te donne une idée vague, propose toujours :
@@ -293,7 +295,7 @@ Génère une stratégie complète incluant :
 3. Fiche produit optimisée conversion + SEO
 4. 3 angles marketing (Safe vs Bold vs SMD Scale)
 5. Scripts TikTok/Reels/LinkedIn (5 scripts)
-6. Roadmap SMD Consulting LLC (intégration au cycle 24h + synergies)
+6. Roadmap SMD Global Consulting LLC (intégration au cycle 24h + synergies)
 
 FORMAT : Réponse structurée avec titres, listes à puces, tableaux markdown.
 TON : Professionnel, direct, orienté action, visionnaire."""
@@ -554,27 +556,443 @@ def init_session():
     """Initialise les variables de session"""
     defaults = {
         'results': {},
-        'initialized': True
+        'initialized': True,
+        'simulated_orders': [
+            {"id": "SMD-2026-981", "client": "Lucas Martin", "ville": "Orléans", "marque": "🚲 URBÆ™", "produit": "Sacoche étanche cadre", "prix": 129.0, "status": "Impression Colis", "tracking": "DHL-MOCK-981"},
+            {"id": "SMD-2026-982", "client": "Emma Bernard", "ville": "Tours", "marque": "⚡ NOVA FUEL", "produit": "Gummies Focus + Sticks", "prix": 79.0, "status": "En cours de préparation", "tracking": "DHL-MOCK-982"},
+            {"id": "SMD-2026-983", "client": "Thomas Dubois", "ville": "Paris", "marque": "🧬 The Apex Protocol", "produit": "Lampe luminothérapie", "prix": 349.0, "status": "Expédié", "tracking": "DHL-987654321"}
+        ]
     }
     for key, value in defaults.items():
         if key not in st.session_state:
             st.session_state[key] = value
 
 # =============================================================================
-# INTERFACE STREAMLIT - SMD CONSULTING LLC (3 MARQUES)
+# INTERFACE STREAMLIT - SMD GLOBAL CONSULTING LLC (3 MARQUES)
 # =============================================================================
 
 st.set_page_config(
-    page_title="SMD Consulting LLC | Brandshipping AI | 3 Marques",
+    page_title="SMD Global Consulting LLC | Brandshipping AI | 3 Marques",
     page_icon="🏢",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-st.title("🏢 SMD Consulting LLC")
+# Injection de styles CSS personnalisés pour un look premium
+st.markdown("""
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@300;400;600&display=swap');
+    
+    html, body, [class*="css"], .stApp {
+        font-family: 'Inter', sans-serif;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 600;
+    }
+    
+    [data-testid="stSidebar"] {
+        background-color: #0c0e18 !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    div.glass-card {
+        background: rgba(255, 255, 255, 0.02) !important;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 20px;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+        transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    div.glass-card:hover {
+        border-color: rgba(255, 255, 255, 0.12);
+        transform: translateY(-2px);
+    }
+    
+    div.generated-box {
+        background: rgba(13, 15, 26, 0.5) !important;
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 15px;
+    }
+    
+    .stButton>button {
+        background: linear-gradient(135deg, #0052D4, #4364F7, #6FB1FC) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 8px !important;
+        padding: 8px 20px !important;
+        font-weight: 600 !important;
+        box-shadow: 0 4px 15px rgba(67, 100, 247, 0.3) !important;
+        transition: all 0.3s ease !important;
+        width: 100%;
+    }
+    .stButton>button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 20px rgba(67, 100, 247, 0.5) !important;
+    }
+    
+    .timeline {
+        position: relative;
+        padding-left: 20px;
+        margin-top: 15px;
+    }
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 5px;
+        top: 5px;
+        bottom: 5px;
+        width: 2px;
+        background: rgba(255, 255, 255, 0.1);
+    }
+    .timeline-item {
+        position: relative;
+        margin-bottom: 20px;
+    }
+    .timeline-badge {
+        position: absolute;
+        left: -20px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #00d4ff;
+        border: 2px solid #0d0f1a;
+        top: 4px;
+    }
+    .timeline-content {
+        padding: 8px 12px;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .timeline-content h5 {
+        margin: 0 0 3px 0;
+        font-size: 0.85rem;
+    }
+    .timeline-content p {
+        margin: 0;
+        font-size: 0.75rem;
+        color: #aaa;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+st.title("🏢 SMD Global Consulting LLC")
 st.caption("Brandshipping AI | URBÆ™ · The Apex Protocol · NOVA FUEL | Objectif : 10K€ → 30K€ → 100K€ net/mois")
 
 init_session()
+
+def render_chat_adjuster(key: str, prompt_key: str):
+    """Affiche l'interface de chat pour ajuster un plan généré"""
+    if key in st.session_state.results:
+        result = st.session_state.results[key]
+        
+        # Bouton d'exportation
+        st.download_button(
+            label="📥 Télécharger ce rapport en Markdown",
+            data=result,
+            file_name=f"smd_{key}_{datetime.now().strftime('%Y%m%d')}.md",
+            mime="text/markdown",
+            key=f"dl_{key}"
+        )
+        
+        # Panel de chat
+        st.markdown("#### 💬 Demander un ajustement à SMD AI Manager")
+        chat_history_key = f"history_{key}"
+        if chat_history_key not in st.session_state:
+            st.session_state[chat_history_key] = []
+            
+        # Affichage de l'historique
+        for chat in st.session_state[chat_history_key]:
+            role_icon = "👤" if chat["role"] == "user" else "🤖"
+            st.markdown(f"**{role_icon} {chat['sender']}** : {chat['content']}")
+            
+        with st.form(key=f"form_chat_{key}"):
+            user_msg = st.text_input("Ajuster le résultat (ex: 'Rends le ton plus scientifique', 'Focalise sur Orléans') :", key=f"input_{key}")
+            submit_btn = st.form_submit_button("Ajuster la stratégie")
+            
+        if submit_btn and user_msg:
+            # Enregistrer le message de l'utilisateur
+            st.session_state[chat_history_key].append({"role": "user", "sender": "Vous", "content": user_msg})
+            
+            # Construire le prompt d'ajustement
+            system_prompt = SYSTEM_PROMPTS.get(prompt_key, "")
+            user_prompt = f"""
+            Voici la stratégie générée précédemment :
+            {result}
+            
+            L'utilisateur demande la modification suivante :
+            {user_msg}
+            
+            Mets à jour la stratégie précédente en prenant en compte cette demande. Conserve le formatage d'origine (tableaux markdown, listes), le style et le ton professionnel.
+            """
+            
+            with st.spinner("🤖 SMD AI Manager ajuste la stratégie..."):
+                updated_result = call_mistral_api(system_prompt, user_prompt)
+                
+            if not updated_result.startswith("❌"):
+                st.session_state.results[key] = updated_result
+                st.session_state[chat_history_key].append({"role": "assistant", "sender": "SMD AI Manager", "content": "La stratégie a été mise à jour !"})
+                st.rerun()
+
+def draw_customizer_canvas(primary_color, secondary_color, logo_text, bg_card_color, text_card_color, brand_name, message_card):
+    logo_text_esc = logo_text.replace("'", "\\'")
+    brand_name_esc = brand_name.replace("'", "\\'")
+    message_card_esc = message_card.replace("'", "\\'").replace("\n", " ")
+    
+    html_code = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <style>
+            body {{
+                background: #0f111a;
+                margin: 0;
+                padding: 0;
+                font-family: 'Outfit', -apple-system, sans-serif;
+                color: white;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                overflow: hidden;
+            }}
+            .container {{
+                display: flex;
+                width: 100%;
+                justify-content: space-around;
+                flex-wrap: wrap;
+                padding-top: 15px;
+            }}
+            .panel {{
+                text-align: center;
+                background: rgba(255,255,255,0.02);
+                border: 1px solid rgba(255,255,255,0.05);
+                border-radius: 12px;
+                padding: 10px;
+                margin: 10px;
+                width: 44%;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            }}
+            h3 {{
+                margin-top: 0;
+                margin-bottom: 10px;
+                font-size: 1.1rem;
+                letter-spacing: 1px;
+                color: #00d4ff;
+            }}
+            canvas {{
+                background: #151824;
+                border-radius: 8px;
+                border: 1px solid rgba(255,255,255,0.05);
+                max-width: 100%;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="panel">
+                <h3>📦 Carton d'Expédition</h3>
+                <canvas id="boxCanvas" width="350" height="320"></canvas>
+            </div>
+            <div class="panel">
+                <h3>✉️ Carte de Remerciement</h3>
+                <canvas id="cardCanvas" width="350" height="320"></canvas>
+            </div>
+        </div>
+        
+        <script>
+            function shadeColor(color, percent) {{
+                var num = parseInt(color.replace("#",""),16),
+                amt = Math.round(2.55 * percent),
+                R = (num >> 16) + amt,
+                G = (num >> 8 & 0x00FF) + amt,
+                B = (num & 0x0000FF) + amt;
+                return "#" + (0x1000000 + (R<255?R<0?0:R:255)*0x10000 + (G<255?G<0?0:G:255)*0x100 + (B<255?B<0?0:B:255)).toString(16).slice(1);
+            }}
+
+            const boxCanvas = document.getElementById('boxCanvas');
+            const bctx = boxCanvas.getContext('2d');
+            
+            function drawBox() {{
+                const cx = boxCanvas.width / 2;
+                const cy = boxCanvas.height / 2 + 10;
+                const size = 90;
+                const pColor = "{primary_color}";
+                const sColor = "{secondary_color}";
+                const logoText = "{logo_text_esc}";
+                
+                bctx.clearRect(0, 0, boxCanvas.width, boxCanvas.height);
+                
+                bctx.beginPath();
+                bctx.ellipse(cx, cy + size - 10, size * 1.5, 20, 0, 0, 2 * Math.PI);
+                bctx.fillStyle = 'rgba(0,0,0,0.4)';
+                bctx.fill();
+                
+                bctx.beginPath();
+                bctx.moveTo(cx, cy - size);
+                bctx.lineTo(cx + size * 1.5, cy - size * 0.5);
+                bctx.lineTo(cx, cy);
+                bctx.lineTo(cx - size * 1.5, cy - size * 0.5);
+                bctx.closePath();
+                bctx.fillStyle = pColor;
+                bctx.fill();
+                bctx.strokeStyle = shadeColor(pColor, -15);
+                bctx.lineWidth = 2;
+                bctx.stroke();
+                
+                bctx.beginPath();
+                bctx.moveTo(cx - size * 1.5, cy - size * 0.5);
+                bctx.lineTo(cx, cy);
+                bctx.lineTo(cx, cy + size);
+                bctx.lineTo(cx - size * 1.5, cy + size - size * 0.5);
+                bctx.closePath();
+                bctx.fillStyle = shadeColor(pColor, -10);
+                bctx.fill();
+                bctx.stroke();
+                
+                bctx.beginPath();
+                bctx.moveTo(cx, cy);
+                bctx.lineTo(cx + size * 1.5, cy - size * 0.5);
+                bctx.lineTo(cx + size * 1.5, cy + size - size * 0.5);
+                bctx.lineTo(cx, cy + size);
+                bctx.closePath();
+                bctx.fillStyle = shadeColor(pColor, -25);
+                bctx.fill();
+                bctx.stroke();
+                
+                bctx.beginPath();
+                bctx.moveTo(cx - size * 0.75, cy - size * 0.75);
+                bctx.lineTo(cx + size * 0.75, cy - size * 0.25);
+                bctx.strokeStyle = sColor;
+                bctx.lineWidth = 14;
+                bctx.lineCap = "round";
+                bctx.stroke();
+                
+                bctx.beginPath();
+                bctx.moveTo(cx, cy);
+                bctx.lineTo(cx, cy + 30);
+                bctx.strokeStyle = sColor;
+                bctx.lineWidth = 14;
+                bctx.stroke();
+                
+                bctx.save();
+                bctx.translate(cx - size * 0.7, cy + 25);
+                bctx.rotate(-Math.PI / 10);
+                bctx.font = 'bold 16px "Outfit", Arial, sans-serif';
+                bctx.fillStyle = sColor;
+                bctx.textAlign = 'center';
+                bctx.fillText(logoText, 0, 0);
+                bctx.restore();
+                
+                bctx.save();
+                bctx.translate(cx + size * 0.6, cy + 15);
+                bctx.rotate(Math.PI / 10);
+                bctx.fillStyle = '#f8f9fa';
+                bctx.fillRect(-25, -35, 50, 60);
+                bctx.strokeStyle = '#dee2e6';
+                bctx.lineWidth = 1;
+                bctx.strokeRect(-25, -35, 50, 60);
+                
+                bctx.fillStyle = '#000';
+                bctx.fillRect(-20, 10, 5, 10);
+                bctx.fillRect(-12, 10, 2, 10);
+                bctx.fillRect(-8, 10, 6, 10);
+                bctx.fillRect(0, 10, 3, 10);
+                bctx.fillRect(5, 10, 8, 10);
+                bctx.fillRect(15, 10, 3, 10);
+                
+                bctx.strokeStyle = '#495057';
+                bctx.lineWidth = 2;
+                bctx.beginPath();
+                bctx.moveTo(-18, -25); bctx.lineTo(15, -25);
+                bctx.moveTo(-18, -18); bctx.lineTo(5, -18);
+                bctx.moveTo(-18, -11); bctx.lineTo(10, -11);
+                bctx.moveTo(-18, -4); bctx.lineTo(18, -4);
+                bctx.stroke();
+                bctx.restore();
+            }}
+
+            const cardCanvas = document.getElementById('cardCanvas');
+            const cctx = cardCanvas.getContext('2d');
+            
+            function drawCard() {{
+                const pColor = "{bg_card_color}";
+                const sColor = "{text_card_color}";
+                const brandName = "{brand_name_esc}";
+                const message = "{message_card_esc}";
+                
+                cctx.clearRect(0, 0, cardCanvas.width, cardCanvas.height);
+                
+                cctx.shadowColor = 'rgba(0,0,0,0.5)';
+                cctx.shadowBlur = 10;
+                cctx.shadowOffsetX = 2;
+                cctx.shadowOffsetY = 4;
+                
+                cctx.fillStyle = pColor;
+                cctx.fillRect(15, 15, cardCanvas.width - 30, cardCanvas.height - 30);
+                cctx.shadowColor = 'transparent';
+                
+                cctx.strokeStyle = sColor;
+                cctx.lineWidth = 2;
+                cctx.strokeRect(25, 25, cardCanvas.width - 50, cardCanvas.height - 50);
+                
+                cctx.lineWidth = 1;
+                cctx.strokeRect(30, 30, cardCanvas.width - 60, cardCanvas.height - 60);
+                
+                cctx.font = 'bold 22px "Outfit", Arial, sans-serif';
+                cctx.fillStyle = sColor;
+                cctx.textAlign = 'center';
+                cctx.fillText(brandName.toUpperCase(), cardCanvas.width / 2, 70);
+                
+                cctx.beginPath();
+                cctx.moveTo(cardCanvas.width/2 - 50, 85);
+                cctx.lineTo(cardCanvas.width/2 + 50, 85);
+                cctx.strokeStyle = sColor;
+                cctx.stroke();
+                
+                cctx.font = 'italic 13px "Georgia", serif';
+                cctx.fillStyle = sColor;
+                
+                function wrapText(context, text, x, y, maxWidth, lineHeight) {{
+                    var words = text.split(' ');
+                    var line = '';
+                    for(var n = 0; n < words.length; n++) {{
+                      var testLine = line + words[n] + ' ';
+                      var metrics = context.measureText(testLine);
+                      var testWidth = metrics.width;
+                      if (testWidth > maxWidth && n > 0) {{
+                        context.fillText(line, x, y);
+                        line = words[n] + ' ';
+                        y += lineHeight;
+                      }}
+                      else {{
+                        line = testLine;
+                      }}
+                    }}
+                    context.fillText(line, x, y);
+                }}
+                
+                wrapText(cctx, message, cardCanvas.width / 2, 125, cardCanvas.width - 80, 20);
+                
+                cctx.font = 'bold 11px "Outfit", sans-serif';
+                cctx.fillText("✨ MERCI POUR VOTRE COMMANDE ✨", cardCanvas.width / 2, cardCanvas.height - 55);
+                
+                cctx.font = '10px "Inter", sans-serif';
+                cctx.fillText("Suivez-nous sur Instagram : @" + brandName.toLowerCase().replace(/\\s+/g, ''), cardCanvas.width / 2, cardCanvas.height - 35);
+            }}
+            
+            drawBox();
+            drawCard();
+        </script>
+    </body>
+    </html>
+    """
+    return html_code
 
 # ---------------------------------------------------------------------------
 # SIDEBAR - COCKPIT SMD 3 MARQUES
@@ -584,9 +1002,9 @@ with st.sidebar:
 
     # Logo SMD
     st.markdown("""
-    <div style="text-align:center; padding:10px; background:#0f0f23; border-radius:8px; margin-bottom:15px;">
-        <h2 style="color:#00d4ff; margin:0; font-size:1.3rem;">SMD CONSULTING</h2>
-        <p style="color:#888; margin:0; font-size:0.6rem;">LLC Wyoming · Brandshipping AI · 3 Marques</p>
+    <div style="text-align:center; padding:15px; background:#0e111a; border-radius:12px; margin-bottom:15px; border: 1px solid rgba(255, 255, 255, 0.05);">
+        <h2 style="color:#00d4ff; margin:0; font-size:1.4rem; font-family:'Outfit';">SMD GLOBAL CONSULTING</h2>
+        <p style="color:#888; margin:0; font-size:0.65rem;">LLC Wyoming · Brandshipping AI · 3 Marques</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -632,13 +1050,37 @@ with st.sidebar:
 
     # Cycle 24h SMD
     st.divider()
+    st.markdown("### 🕐 Cycle Client 24H")
+    st.markdown("""
+    <div class="timeline">
+        <div class="timeline-item">
+            <div class="timeline-badge" style="background: #FF2A85;"></div>
+            <div class="timeline-content">
+                <h5>06:00 ⚡ NOVA FUEL</h5>
+                <p>Gummies "Focus Shot" & Électrolytes pour l'énergie matinale.</p>
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-badge" style="background: #00FF66;"></div>
+            <div class="timeline-content">
+                <h5>08:00 🚲 URBÆ™</h5>
+                <p>Sacoche étanche cadre pour un vélotaf urbain optimisé.</p>
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-badge" style="background: #00D4FF;"></div>
+            <div class="timeline-content">
+                <h5>22:00 🧬 Apex Protocol</h5>
+                <p>Luminothérapie circadienne pour un sommeil profond.</p>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.divider()
     st.markdown("""
     <div style="font-size:0.7rem; color:#666;">
-        <b>🕐 Cycle SMD 24H :</b><br>
-        06h ⚡ Nova Fuel (énergie)<br>
-        08h 🚲 URBÆ™ (vélotaf)<br>
-        22h 🧬 Apex (sommeil)<br><br>
-        <b>🏢 SMD Consulting LLC</b><br>
+        <b>🏢 SMD Global Consulting LLC</b><br>
         Structure : Wyoming<br>
         Portefeuille : 3 marques<br><br>
         <b>Services :</b><br>
@@ -651,18 +1093,105 @@ with st.sidebar:
     """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------------------------
-# TABS - 5 AXES SMD
+# TABS - 7 AXES SMD (AMELIORE)
 # ---------------------------------------------------------------------------
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
     "🎯 Stratégie", 
     "🎁 Offre", 
     "🎬 Créatives", 
     "📢 Acquisition",
-    "🤖 Agent Principal"
+    "🤖 Agent Principal",
+    "📦 Personnalisateur",
+    "⚙️ Hub Opérationnel"
 ])
 
 with tab1:
-    st.subheader("🎯 Plan Stratégique Hebdomadaire")
+    st.subheader("🎯 Plan Stratégique & Cockpit Financier")
+
+    # Cockpit financier avec graphiques Plotly
+    with st.expander("📊 Cockpit Financier & Graphiques de Projection", expanded=True):
+        st.markdown("### Simulateur P&L de la Marque")
+        
+        # Déterminer les paramètres de base selon la marque active
+        if "URBÆ" in marque_active:
+            base_prix = prix_u
+            base_cout = cout_u
+            color_accent = "#00FF66"
+        elif "Apex" in marque_active:
+            base_prix = prix_a
+            base_cout = cout_a
+            color_accent = "#00D4FF"
+        elif "NOVA" in marque_active:
+            base_prix = prix_n
+            base_cout = cout_n
+            color_accent = "#FF2A85"
+        else:
+            base_prix = 100.0
+            base_cout = 30.0
+            color_accent = "#9B5DE5"
+            
+        c1, c2, c3, c4 = st.columns(4)
+        with c1:
+            budget_ads_m = st.slider("Budget Ads Mensuel (€)", 500, 20000, 3000, step=500)
+        with c2:
+            roas_sim = st.slider("ROAS Ciblé", 1.5, 8.0, 3.2, step=0.1)
+        with c3:
+            conversion_rate = st.slider("Taux Conv. (%)", 0.5, 6.0, 2.2, step=0.1)
+        with c4:
+            cogs_cost = st.number_input("Coût de Fabrication (€)", value=float(base_cout), step=1.0)
+            
+        # Calculs
+        ca_mensuel_sim = budget_ads_m * roas_sim
+        panier_moyen_sim = float(base_prix)
+        commandes_sim = ca_mensuel_sim / panier_moyen_sim if panier_moyen_sim > 0 else 0
+        cogs_total_sim = commandes_sim * cogs_cost
+        profit_net_sim = ca_mensuel_sim - cogs_total_sim - budget_ads_m
+        marge_nette_sim = (profit_net_sim / ca_mensuel_sim * 100) if ca_mensuel_sim > 0 else 0
+        progression_10k_sim = min((profit_net_sim / 10000.0) * 100, 100.0)
+        
+        # Affichage
+        m1, m2, m3, m4 = st.columns(4)
+        m1.metric("CA Mensuel Estimé", f"{ca_mensuel_sim:,.2f} €")
+        m2.metric("Bénéfice Net Estimé", f"{profit_net_sim:,.2f} €", delta=f"{marge_nette_sim:.1f}% Marge Nette")
+        m3.metric("Commandes / Mois", f"{commandes_sim:.0f} (soit {commandes_sim/30:.1f}/j)")
+        m4.metric("Progression Objectif 10K€", f"{progression_10k_sim:.1f}%")
+        
+        # Tracé Plotly
+        months = [f"Mois {i}" for i in range(1, 13)]
+        
+        branded_profit = []
+        generic_profit = []
+        curr_b = 0
+        curr_g = 0
+        
+        for i in range(1, 13):
+            # Le modèle de marque bénéficie de commandes récurrentes (rétention de 15%)
+            retention_factor = 1.0 + (0.15 * min(i-1, 4))
+            b_net = (profit_net_sim * retention_factor)
+            g_net = profit_net_sim * (1.0 - (0.02 * (i-1))) # Perte due à l'augmentation du CPA sur du générique
+            curr_b += b_net
+            curr_g += g_net
+            branded_profit.append(curr_b)
+            generic_profit.append(curr_g)
+            
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=months, y=branded_profit, name="Brandshipping (Optimisé)", line=dict(color=color_accent, width=3)))
+        fig.add_trace(go.Scatter(x=months, y=generic_profit, name="Dropshipping Classique", line=dict(color="#888888", width=2, dash='dash')))
+        fig.update_layout(
+            title=dict(text="Projection Cumulée des Bénéfices sur 12 Mois (Modèle Brandshipping vs Classique)", font=dict(color="#ffffff")),
+            xaxis_title="Période",
+            yaxis_title="Bénéfices Cumulés (€)",
+            # template="plotly_dark" supprimé : incompatible avec Plotly 6.0.0 (bug 'background')
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(15,17,26,0.8)",
+            font=dict(color="#ffffff"),
+            xaxis=dict(gridcolor="rgba(255,255,255,0.1)", color="#aaaaaa"),
+            yaxis=dict(gridcolor="rgba(255,255,255,0.1)", color="#aaaaaa"),
+            legend=dict(font=dict(color="#ffffff")),
+            height=320,
+            margin=dict(l=20, r=20, t=40, b=20)
+        )
+        st.plotly_chart(fig, use_container_width=True)
 
     col1, col2 = st.columns(2)
     with col1:
@@ -683,10 +1212,12 @@ with tab1:
         result = generate_with_cache("strategie", prompt)
         if not result.startswith("❌"):
             st.session_state.results['strategie'] = result
-        st.markdown(result)
+        st.rerun()
 
-    elif 'strategie' in st.session_state.results:
+    if 'strategie' in st.session_state.results:
+        st.markdown("---")
         st.markdown(st.session_state.results['strategie'])
+        render_chat_adjuster("strategie", "strategie")
 
 with tab2:
     st.subheader("🎁 Optimisation des Bundles")
@@ -705,10 +1236,12 @@ with tab2:
         result = generate_with_cache("offre", prompt)
         if not result.startswith("❌"):
             st.session_state.results['offre'] = result
-        st.markdown(result)
+        st.rerun()
 
-    elif 'offre' in st.session_state.results:
+    if 'offre' in st.session_state.results:
+        st.markdown("---")
         st.markdown(st.session_state.results['offre'])
+        render_chat_adjuster("offre", "offre")
 
 with tab3:
     st.subheader("🎬 Scripts UGC - 15 vidéos/semaine (5 par marque)")
@@ -732,10 +1265,12 @@ with tab3:
         result = generate_with_cache("creatives", prompt)
         if not result.startswith("❌"):
             st.session_state.results['creatives'] = result
-        st.markdown(result)
+        st.rerun()
 
-    elif 'creatives' in st.session_state.results:
+    if 'creatives' in st.session_state.results:
+        st.markdown("---")
         st.markdown(st.session_state.results['creatives'])
+        render_chat_adjuster("creatives", "creatives")
 
 with tab4:
     st.subheader("📢 Plan Acquisition")
@@ -760,10 +1295,12 @@ with tab4:
         result = generate_with_cache("acquisition", prompt)
         if not result.startswith("❌"):
             st.session_state.results['acquisition'] = result
-        st.markdown(result)
+        st.rerun()
 
-    elif 'acquisition' in st.session_state.results:
+    if 'acquisition' in st.session_state.results:
+        st.markdown("---")
         st.markdown(st.session_state.results['acquisition'])
+        render_chat_adjuster("acquisition", "acquisition")
 
 with tab5:
     st.subheader("🤖 Agent IA Principal SMD")
@@ -824,7 +1361,6 @@ with tab5:
 
     # Bouton génération
     if st.button("🚀 Générer la stratégie complète", type="primary", use_container_width=True, key="btn_agent"):
-
         if not idee_produit and not idee_detail:
             st.warning("💡 Décris au moins un produit ou une idée")
         else:
@@ -846,22 +1382,20 @@ Détails: {idee_detail or 'Aucun'}
 Styles: {', '.join(styles)}
 Compétences: {', '.join(skills)}
 
-Génère la stratégie complète SMD Consulting LLC avec intégration au cycle 24h."""
+Génère la stratégie complète SMD Global Consulting LLC avec intégration au cycle 24h."""
 
             with st.spinner("🤖 Agent Principal SMD analyse votre projet..."):
                 result = generate_with_cache("agent_principal", prompt)
 
             if not result.startswith("❌"):
                 st.session_state.results['agent_principal'] = result
+            st.rerun()
 
-            st.markdown("---")
-            st.markdown("## 📋 Stratégie SMD Générée")
-            st.markdown(result)
-
-    elif 'agent_principal' in st.session_state.results:
+    if 'agent_principal' in st.session_state.results:
         st.markdown("---")
-        st.markdown("## 📋 Dernière stratégie générée")
+        st.markdown("## 📋 Stratégie SMD Générée")
         st.markdown(st.session_state.results['agent_principal'])
+        render_chat_adjuster("agent_principal", "agent_principal")
 
     with st.expander("💡 Exemples d'idées"):
         st.markdown("""
@@ -874,5 +1408,154 @@ Génère la stratégie complète SMD Consulting LLC avec intégration au cycle 2
         **Exemple 4 (Cycle 24h) :** "NOVA FUEL (matin) + URBÆ™ (jour) + Apex (nuit) pour entrepreneurs performants"
         """)
 
+with tab6:
+    st.subheader("📦 Personnalisateur d'Emballage Virtuel")
+    st.markdown("Configurez vos emballages et visualisez en temps réel le carton d'expédition et la carte de remerciement personnalisés.")
+
+    # Paramètres de couleur et de texte
+    col_custom1, col_custom2 = st.columns(2)
+    with col_custom1:
+        st.markdown("#### Conception du Carton d'Expédition")
+        
+        # Valeurs par défaut selon la marque
+        if "URBÆ" in marque_active:
+            def_p = "#1b1d28"
+            def_s = "#00ff66"
+            def_logo = "URBÆ"
+        elif "Apex" in marque_active:
+            def_p = "#090d16"
+            def_s = "#00d4ff"
+            def_logo = "APEX PROTOCOL"
+        elif "NOVA" in marque_active:
+            def_p = "#1c0d18"
+            def_s = "#ff2a85"
+            def_logo = "NOVA FUEL"
+        else:
+            def_p = "#212529"
+            def_s = "#f8f9fa"
+            def_logo = "SMD BRAND"
+            
+        box_p_color = st.color_picker("Couleur principale du colis", value=def_p, key="box_p")
+        box_s_color = st.color_picker("Couleur du ruban / logo", value=def_s, key="box_s")
+        box_logo_text = st.text_input("Texte du logo imprimé", value=def_logo, key="box_logo")
+        
+    with col_custom2:
+        st.markdown("#### Conception de la Carte Insert")
+        card_bg_color = st.color_picker("Couleur de fond de la carte", value="#ffffff", key="card_bg")
+        card_text_color = st.color_picker("Couleur du texte de la carte", value="#111111", key="card_txt")
+        card_brand = st.text_input("Nom de marque de la carte", value=def_logo, key="card_brand")
+        card_message = st.text_area(
+            "Message de remerciement",
+            value="Merci d'avoir choisi notre marque pour optimiser votre quotidien ! Profitez de -10% sur votre prochain achat avec le code : BRAND10",
+            key="card_msg"
+        )
+        
+    st.markdown("---")
+    
+    # Rendu du visualiseur Canvas
+    canvas_html = draw_customizer_canvas(
+        box_p_color, box_s_color, box_logo_text,
+        card_bg_color, card_text_color, card_brand, card_message
+    )
+    st.components.v1.html(canvas_html, height=360)
+    
+    st.success("✅ Maquette générée ! Vous pouvez utiliser ces codes couleur chez vos fournisseurs sélectionnés.")
+
+with tab7:
+    st.subheader("⚙️ Hub Opérationnel & Fournisseurs")
+    
+    # Ordres simulés
+    st.subheader("🛒 Flux de Commandes Intégré")
+    st.caption("Simulez des ventes et gérez les étapes logistiques d'emballage et d'expédition.")
+    
+    col_btns = st.columns(2)
+    with col_btns[0]:
+        if st.button("🚀 Simuler une Vente Shopify / TikTok Shop", use_container_width=True):
+            import random
+            clients_mock = ["Sylvie Petit", "Antoine Legrand", "Marc Moreau", "Chloé Roux", "Alexandre Simon", "Sarah Vidal"]
+            villes_mock = ["Blois", "Tours", "Orléans", "Paris", "Lyon", "Marseille", "Bordeaux"]
+            marques_mock = ["🚲 URBÆ™", "🧬 The Apex Protocol", "⚡ NOVA FUEL"]
+            produits_mock = {
+                "🚲 URBÆ™": ("Sacoche étanche cadre", 129.0),
+                "🧬 The Apex Protocol": ("Lampe luminothérapie", 349.0),
+                "⚡ NOVA FUEL": ("Gummies Focus + Sticks", 79.0)
+            }
+            
+            sel_marque = random.choice(marques_mock)
+            prod_name, prod_price = produits_mock[sel_marque]
+            new_order = {
+                "id": f"SMD-2026-{random.randint(100, 999)}",
+                "client": random.choice(clients_mock),
+                "ville": random.choice(villes_mock),
+                "marque": sel_marque,
+                "produit": prod_name,
+                "prix": prod_price,
+                "status": "Attente personnalisation",
+                "tracking": "N/A"
+            }
+            st.session_state.simulated_orders.insert(0, new_order)
+            st.success(f"Commande reçue ! Nouvelle vente pour {new_order['client']} ({new_order['prix']} €)")
+            st.rerun()
+            
+    with col_btns[1]:
+        if st.button("📦 Traiter la commande en attente", use_container_width=True):
+            # Trouver la commande la plus ancienne non expédiée
+            found = False
+            for ord in reversed(st.session_state.simulated_orders):
+                if ord["status"] == "Attente personnalisation":
+                    ord["status"] = "Impression Colis"
+                    st.info(f"Commande {ord['id']} : Lancement de l'impression du colis personnalisé.")
+                    found = True
+                    break
+                elif ord["status"] == "Impression Colis":
+                    ord["status"] = "En cours de préparation"
+                    st.info(f"Commande {ord['id']} : Emballage et insertion de la carte de remerciement.")
+                    found = True
+                    break
+                elif ord["status"] == "En cours de préparation":
+                    ord["status"] = "Expédié"
+                    import random
+                    ord["tracking"] = f"DHL-{random.randint(100000000, 999999999)}"
+                    st.success(f"Commande {ord['id']} expédiée via DHL ! Suivi : {ord['tracking']}")
+                    found = True
+                    break
+            if not found:
+                st.warning("Toutes les commandes sont déjà traitées et expédiées !")
+            else:
+                st.rerun()
+                
+    # Tableau des commandes
+    df_orders = pd.DataFrame(st.session_state.simulated_orders)
+    st.dataframe(df_orders, use_container_width=True)
+    
+    st.markdown("---")
+    
+    # Fournisseurs
+    st.subheader("🔍 Annuaire des Fournisseurs Premium (Zéro MOQ)")
+    st.markdown("Voici la liste des fournisseurs sélectionnés et vérifiés par SMD Global Consulting LLC pour le brandshipping.")
+    
+    sups = [
+        {"Nom": "YunExpress Brandship Line", "Vitesse": "5-8 jours ouvrés", "MOQ": "1 unité", "Tarif Box": "1.80€ / unité", "Catégorie": "Électronique, Beauté", "Note": "⭐⭐⭐⭐⭐ 4.8/5"},
+        {"Nom": "DHL Fastline Europe", "Vitesse": "3-5 jours ouvrés", "MOQ": "1 unité", "Tarif Box": "2.50€ / unité", "Catégorie": "Général, Premium", "Note": "⭐⭐⭐⭐⭐ 4.9/5"},
+        {"Nom": "SMD Local Supply (Blois-Tours)", "Vitesse": "2-3 jours ouvrés", "MOQ": "1 unité", "Tarif Box": "3.00€ / unité (Éco-Conçu)", "Catégorie": "Sports, Mobilier", "Note": "⭐⭐⭐⭐⭐ 5.0/5"},
+        {"Nom": "ZhiExpress Custom", "Vitesse": "7-12 jours ouvrés", "MOQ": "10 unités", "Tarif Box": "1.20€ / unité", "Catégorie": "Général", "Note": "⭐⭐⭐⭐ 4.5/5"}
+    ]
+    
+    col_sups = st.columns(2)
+    for index, s in enumerate(sups):
+        col_target = col_sups[index % 2]
+        with col_target:
+            st.markdown(f"""
+            <div class="glass-card">
+                <h4 style="color:#00d4ff; margin:0; font-size:1.15rem; font-family:'Outfit';">{s['Nom']}</h4>
+                <p style="margin:8px 0; font-size:0.85rem; color:#ccc; line-height:1.4;">
+                    <b>⏱️ Délai :</b> {s['Vitesse']} | <b>📦 MOQ :</b> {s['MOQ']}<br>
+                    <b>💵 Prix Colis Custom :</b> {s['Tarif Box']} <br>
+                    <b>🏷️ Secteur :</b> {s['Catégorie']}
+                </p>
+                <div style="font-size:0.85rem; color:#FFE500;">{s['Note']}</div>
+            </div>
+            """, unsafe_allow_html=True)
+
 st.divider()
-st.caption("SMD Consulting LLC | Brandshipping AI © 2026 | URBÆ™ · The Apex Protocol · NOVA FUEL | Propulsé par Mistral AI")
+st.caption("SMD Global Consulting LLC | Brandshipping AI © 2026 | URBÆ™ · The Apex Protocol · NOVA FUEL | Propulsé par Mistral AI")
