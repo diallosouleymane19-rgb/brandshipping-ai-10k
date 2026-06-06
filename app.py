@@ -298,7 +298,58 @@ Génère une stratégie complète incluant :
 6. Roadmap SMD Global Consulting LLC (intégration au cycle 24h + synergies)
 
 FORMAT : Réponse structurée avec titres, listes à puces, tableaux markdown.
-TON : Professionnel, direct, orienté action, visionnaire."""
+TON : Professionnel, direct, orienté action, visionnaire.""",
+
+    "ugc_factory": """Tu es l'Agent Script UGC de SMD Global Consulting LLC, expert en création de scripts publicitaires vidéo ultra-convertissants.
+
+MISSION : Produire des scripts UGC (User Generated Content) professionnels pour TikTok, Reels Instagram et YouTube Shorts.
+
+PORTEFEUILLE SMD :
+| Marque | Produit | Prix | Ton | Audience |
+|--------|---------|------|-----|----------|
+| URBÆ™ | Sacoche cadre vélo waterproof | 89-149€ | Lifestyle urbain, confiant | Vélotafeurs, livreurs, étudiants |
+| The Apex Protocol | Lampe luminothérapie circadien | 299-349€ | Scientifique, premium | Biohackers, cadres, entrepreneurs |
+| NOVA FUEL | Gummies nootropiques, électrolytes | 39-79€ | Énergique, accessible | Sportifs, étudiants, performants |
+
+STRUCTURE OBLIGATOIRE DU SCRIPT :
+
+## 🎬 [TITRE DU SCRIPT]
+**Durée :** [X] secondes | **Plateforme :** [TikTok/Reels/Shorts] | **Type :** [Hook/Témoignage/Démonstration/FOMO]
+
+### 🎯 HOOK (0-3s) — ACCROCHEZ EN UNE PHRASE
+[Phrase d'accroche ultra-percutante. Exemples : "POV : Tu découvres que...", "J'ai testé X pendant 30 jours, voilà...", "Le truc que personne ne dit sur..."]
+
+### ❗ PROBLÈME (3-8s) — DOULEUR DU CLIENT
+[Douleur spécifique et relatable de l'audience cible]
+
+### ✅ SOLUTION (8-20s) — LE PRODUIT EN ACTION
+[Démonstration ou description du bénéfice concret. Chiffres, résultats, avant/après]
+
+### 📢 CTA (20-30s) — APPEL À L'ACTION
+[CTA clair + urgence + code promo si applicable]
+
+### 🎨 TEXTE OVERLAY (incrustations à l'écran)
+- [Stat ou bénéfice choc]
+- [Preuve sociale]
+- [Offre ou prix]
+
+### 🎙️ VOIX OFF (texte exact pour ElevenLabs)
+[Texte complet à lire en voix off — naturel, rythmé, sans ponctuation excessive]
+
+### 🎵 RECOMMANDATION AUDIO
+[Style musical : ex. "Beat lo-fi énergique", "Son viral TikTok ambiant"]
+
+### #️⃣ HASHTAGS
+[15-20 hashtags optimisés par plateforme]
+
+RÈGLES DE PRODUCTION :
+1. Hook en moins de 3 secondes — sinon l'audience zappe
+2. Toujours 1 chiffre concret (ex : "+340% focus", "3.2 commandes/jour")
+3. CTA avec friction minimale ("Lien en bio", "Code NOVA20")
+4. Langage naturel, parlé, pas écrit — comme un vrai créateur UGC
+5. Adapter le ton par marque (URBÆ = cool urbain / Apex = scientifique / Nova = punch énergie)
+
+FORMAT : Produire le nombre exact de scripts demandé, chacun complet et prêt à tourner."""
 }
 
 # =============================================================================
@@ -1095,14 +1146,15 @@ with st.sidebar:
 # ---------------------------------------------------------------------------
 # TABS - 7 AXES SMD (AMELIORE)
 # ---------------------------------------------------------------------------
-tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
-    "🎯 Stratégie", 
-    "🎁 Offre", 
-    "🎬 Créatives", 
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
+    "🎯 Stratégie",
+    "🎁 Offre",
+    "🎬 Créatives",
     "📢 Acquisition",
     "🤖 Agent Principal",
     "📦 Personnalisateur",
-    "⚙️ Hub Opérationnel"
+    "⚙️ Hub Opérationnel",
+    "🏭 UGC Factory"
 ])
 
 with tab1:
@@ -1556,6 +1608,410 @@ with tab7:
                 <div style="font-size:0.85rem; color:#FFE500;">{s['Note']}</div>
             </div>
             """, unsafe_allow_html=True)
+
+# =============================================================================
+# TAB 8 — 🏭 UGC FACTORY : PIPELINE IA COLLABORATIF
+# =============================================================================
+with tab8:
+    st.subheader("🏭 UGC Factory — Pipeline IA Collaboratif")
+    st.markdown("Production automatisée de vidéos UGC : **Brief → Script → Voix → Vidéo → Export**")
+
+    # ── Indicateur pipeline ──────────────────────────────────────────────────
+    st.markdown("""
+    <div style="display:flex; gap:8px; align-items:center; margin-bottom:20px; flex-wrap:wrap;">
+        <span style="background:#1a1a3e; border:1px solid #00d4ff; border-radius:20px; padding:6px 14px; color:#00d4ff; font-size:0.8rem;">① Brief Client</span>
+        <span style="color:#555;">→</span>
+        <span style="background:#1a1a3e; border:1px solid #9B5DE5; border-radius:20px; padding:6px 14px; color:#9B5DE5; font-size:0.8rem;">② Agent Script (Mistral)</span>
+        <span style="color:#555;">→</span>
+        <span style="background:#1a1a3e; border:1px solid #51cf66; border-radius:20px; padding:6px 14px; color:#51cf66; font-size:0.8rem;">③ Voix Off (ElevenLabs)</span>
+        <span style="color:#555;">→</span>
+        <span style="background:#1a1a3e; border:1px solid #FF2A85; border-radius:20px; padding:6px 14px; color:#FF2A85; font-size:0.8rem;">④ Vidéo Avatar (HeyGen)</span>
+        <span style="color:#555;">→</span>
+        <span style="background:#1a1a3e; border:1px solid #ffd43b; border-radius:20px; padding:6px 14px; color:#ffd43b; font-size:0.8rem;">⑤ Export & Livraison</span>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ── ÉTAPE 1 : BRIEF CLIENT ───────────────────────────────────────────────
+    with st.expander("① Brief Client", expanded=True):
+        col1, col2 = st.columns(2)
+        with col1:
+            ugc_marque = st.selectbox(
+                "Marque",
+                ["URBÆ™", "The Apex Protocol", "NOVA FUEL", "Client externe"],
+                key="ugc_marque"
+            )
+            ugc_plateforme = st.selectbox(
+                "Plateforme cible",
+                ["TikTok", "Reels Instagram", "YouTube Shorts", "Toutes"],
+                key="ugc_plateforme"
+            )
+            ugc_nb_scripts = st.slider("Nombre de scripts", 1, 10, 3, key="ugc_nb_scripts")
+
+        with col2:
+            ugc_type = st.multiselect(
+                "Types de scripts",
+                ["Hook données/stats", "Témoignage client", "Démonstration produit",
+                 "FOMO/Urgence", "Routine quotidienne", "Test extrême", "Cross-sell SMD"],
+                default=["Hook données/stats", "Témoignage client", "FOMO/Urgence"],
+                key="ugc_type"
+            )
+            ugc_duree = st.selectbox(
+                "Durée vidéo",
+                ["15 secondes", "30 secondes", "45 secondes", "60 secondes"],
+                key="ugc_duree"
+            )
+
+        ugc_angle = st.text_area(
+            "Angle spécifique / Contexte brief",
+            placeholder="Ex: Mettre en avant le gain de temps pour les vélotafeurs pressés. Ton humoristique mais crédible...",
+            height=80,
+            key="ugc_angle"
+        )
+
+        ugc_cta = st.text_input(
+            "CTA & Code promo",
+            placeholder="Ex: Code URBA20 pour -20% | Lien en bio | Stock limité",
+            key="ugc_cta"
+        )
+
+    # ── ÉTAPE 2 : AGENT SCRIPT (MISTRAL) ────────────────────────────────────
+    st.markdown("---")
+
+    if st.button("🤖 ② Générer les scripts avec Mistral", type="primary",
+                 use_container_width=True, key="btn_ugc_script"):
+
+        types_str = ", ".join(ugc_type) if ugc_type else "variés"
+        prompt_ugc = f"""
+Marque : {ugc_marque}
+Plateforme : {ugc_plateforme}
+Nombre de scripts : {ugc_nb_scripts}
+Types : {types_str}
+Durée : {ugc_duree}
+Angle / Brief : {ugc_angle or "Général - optimise selon la marque"}
+CTA / Code promo : {ugc_cta or "Lien en bio"}
+
+Produis exactement {ugc_nb_scripts} scripts UGC complets, prêts à tourner.
+Chaque script doit avoir : Hook, Problème, Solution, CTA, Texte overlay, Voix off complète, Hashtags.
+"""
+        result = generate_with_cache("ugc_factory", prompt_ugc)
+        if not result.startswith("❌"):
+            st.session_state.results['ugc_scripts'] = result
+            st.session_state['ugc_marque_sel'] = ugc_marque
+        st.rerun()
+
+    # Affichage des scripts générés
+    if 'ugc_scripts' in st.session_state.results:
+        with st.expander("📄 Scripts générés (prêts à utiliser)", expanded=True):
+            st.markdown(st.session_state.results['ugc_scripts'])
+            col_dl1, col_dl2 = st.columns(2)
+            with col_dl1:
+                st.download_button(
+                    "⬇️ Télécharger les scripts (.txt)",
+                    data=st.session_state.results['ugc_scripts'],
+                    file_name=f"scripts_ugc_{ugc_marque.replace('™','').replace(' ','_')}.txt",
+                    mime="text/plain",
+                    use_container_width=True,
+                    key="dl_scripts"
+                )
+
+    # ── ÉTAPE 3 : VOIX OFF (ELEVENLABS) ─────────────────────────────────────
+    st.markdown("---")
+    with st.expander("③ Voix Off — ElevenLabs", expanded=False):
+        st.markdown("**Convertissez la section 'VOIX OFF' de votre script en audio professionnel.**")
+
+        eleven_key = st.text_input(
+            "🔑 ElevenLabs API Key",
+            type="password",
+            placeholder="sk-... (obtenez-la sur elevenlabs.io)",
+            key="eleven_key"
+        )
+
+        voix_off_texte = st.text_area(
+            "Texte à convertir en voix",
+            placeholder="Collez ici la section VOIX OFF de votre script généré...",
+            height=120,
+            key="voix_off_texte"
+        )
+
+        col1, col2 = st.columns(2)
+        with col1:
+            voice_id = st.selectbox(
+                "Voix",
+                ["Rachel (FR féminine, douce)", "Bella (FR féminine, énergique)",
+                 "Antoni (FR masculin, confiant)", "Josh (FR masculin, jeune)"],
+                key="voice_id"
+            )
+            voice_map = {
+                "Rachel (FR féminine, douce)": "21m00Tcm4TlvDq8ikWAM",
+                "Bella (FR féminine, énergique)": "EXAVITQu4vr4xnSDxMaL",
+                "Antoni (FR masculin, confiant)": "ErXwobaYiN019PkySvjV",
+                "Josh (FR masculin, jeune)": "TxGEqnHWrfWFTfGW9XjX"
+            }
+        with col2:
+            stability = st.slider("Stabilité voix", 0.0, 1.0, 0.5, 0.05, key="stability")
+            similarity = st.slider("Similarité", 0.0, 1.0, 0.75, 0.05, key="similarity")
+
+        if st.button("🎙️ Générer la voix off", key="btn_voix", use_container_width=True):
+            if not eleven_key:
+                st.warning("⚠️ Entrez votre clé ElevenLabs API")
+            elif not voix_off_texte:
+                st.warning("⚠️ Entrez le texte à convertir")
+            else:
+                selected_voice = voice_map.get(voice_id, "21m00Tcm4TlvDq8ikWAM")
+                with st.spinner("🎙️ Génération audio en cours..."):
+                    try:
+                        resp = requests.post(
+                            f"https://api.elevenlabs.io/v1/text-to-speech/{selected_voice}",
+                            headers={
+                                "xi-api-key": eleven_key,
+                                "Content-Type": "application/json"
+                            },
+                            json={
+                                "text": voix_off_texte,
+                                "model_id": "eleven_multilingual_v2",
+                                "voice_settings": {
+                                    "stability": stability,
+                                    "similarity_boost": similarity
+                                }
+                            },
+                            timeout=30
+                        )
+                        if resp.status_code == 200:
+                            st.session_state['ugc_audio'] = resp.content
+                            st.success("✅ Voix off générée !")
+                        else:
+                            st.error(f"❌ Erreur ElevenLabs ({resp.status_code}) : vérifiez votre clé API")
+                    except Exception as e:
+                        st.error(f"❌ Erreur : {e}")
+
+        if 'ugc_audio' in st.session_state:
+            st.audio(st.session_state['ugc_audio'], format="audio/mp3")
+            st.download_button(
+                "⬇️ Télécharger la voix off (.mp3)",
+                data=st.session_state['ugc_audio'],
+                file_name="voix_off_ugc.mp3",
+                mime="audio/mpeg",
+                use_container_width=True,
+                key="dl_audio"
+            )
+
+    # ── ÉTAPE 4 : VIDÉO AVATAR (HEYGEN) ─────────────────────────────────────
+    st.markdown("---")
+    with st.expander("④ Vidéo Avatar — HeyGen", expanded=False):
+        st.markdown("**Créez une vidéo avec un avatar IA qui lit votre script.**")
+
+        heygen_key = st.text_input(
+            "🔑 HeyGen API Key",
+            type="password",
+            placeholder="Obtenez-la sur app.heygen.com → Settings → API",
+            key="heygen_key"
+        )
+
+        col1, col2 = st.columns(2)
+        with col1:
+            avatar_id = st.selectbox(
+                "Avatar",
+                ["Anna (femme, 25-30ans, style casual)", "Tyler (homme, 28-35ans, style pro)",
+                 "Jade (femme, 20-25ans, style sportif)", "Marcus (homme, 30-40ans, style entrepreneur)"],
+                key="avatar_id"
+            )
+            avatar_map = {
+                "Anna (femme, 25-30ans, style casual)": "Anna_public_3_20240108",
+                "Tyler (homme, 28-35ans, style pro)": "Tyler-incasualsuit-20220721",
+                "Jade (femme, 20-25ans, style sportif)": "Jade_public_2_20231130",
+                "Marcus (homme, 30-40ans, style entrepreneur)": "Marcus_public_3_20240108"
+            }
+        with col2:
+            video_ratio = st.selectbox(
+                "Format",
+                ["9:16 (TikTok/Reels vertical)", "16:9 (YouTube horizontal)", "1:1 (Carré)"],
+                key="video_ratio"
+            )
+            ratio_map = {"9:16 (TikTok/Reels vertical)": "9:16", "16:9 (YouTube horizontal)": "16:9", "1:1 (Carré)": "1:1"}
+
+        script_video = st.text_area(
+            "Script pour l'avatar (voix off complète)",
+            placeholder="Collez ici la VOIX OFF de votre script généré à l'étape ②...",
+            height=120,
+            key="script_video"
+        )
+
+        if st.button("🎬 Générer la vidéo", key="btn_heygen", use_container_width=True):
+            if not heygen_key:
+                st.warning("⚠️ Entrez votre clé HeyGen API")
+            elif not script_video:
+                st.warning("⚠️ Entrez le script pour l'avatar")
+            else:
+                with st.spinner("🎬 Création de la vidéo en cours (1-3 min)..."):
+                    try:
+                        selected_avatar = avatar_map.get(avatar_id, "Anna_public_3_20240108")
+                        selected_ratio = ratio_map.get(video_ratio, "9:16")
+                        resp = requests.post(
+                            "https://api.heygen.com/v2/video/generate",
+                            headers={
+                                "X-Api-Key": heygen_key,
+                                "Content-Type": "application/json"
+                            },
+                            json={
+                                "video_inputs": [{
+                                    "character": {
+                                        "type": "avatar",
+                                        "avatar_id": selected_avatar,
+                                        "avatar_style": "normal"
+                                    },
+                                    "voice": {
+                                        "type": "text",
+                                        "input_text": script_video,
+                                        "voice_id": "fr-FR-DeniseNeural",
+                                        "speed": 1.05
+                                    }
+                                }],
+                                "dimension": {
+                                    "width": 720 if selected_ratio == "16:9" else 405,
+                                    "height": 405 if selected_ratio == "16:9" else 720
+                                }
+                            },
+                            timeout=30
+                        )
+                        if resp.status_code == 200:
+                            data = resp.json()
+                            video_id = data.get("data", {}).get("video_id", "")
+                            if video_id:
+                                st.session_state['ugc_video_id'] = video_id
+                                st.success(f"✅ Vidéo en cours de génération ! ID : `{video_id}`")
+                                st.info("⏳ Revenez dans 2-3 minutes et collez l'ID ci-dessous pour récupérer la vidéo.")
+                            else:
+                                st.error("❌ Réponse HeyGen inattendue")
+                        else:
+                            st.error(f"❌ Erreur HeyGen ({resp.status_code}) : {resp.text[:200]}")
+                    except Exception as e:
+                        st.error(f"❌ Erreur : {e}")
+
+        # Récupération vidéo par ID
+        st.markdown("**Récupérer une vidéo générée :**")
+        col_v1, col_v2 = st.columns([3, 1])
+        with col_v1:
+            video_id_input = st.text_input(
+                "Video ID HeyGen",
+                value=st.session_state.get('ugc_video_id', ''),
+                placeholder="Collez ici le video_id reçu...",
+                key="video_id_input"
+            )
+        with col_v2:
+            if st.button("🔍 Vérifier statut", key="btn_check_video"):
+                if video_id_input and heygen_key:
+                    with st.spinner("Vérification..."):
+                        try:
+                            r = requests.get(
+                                f"https://api.heygen.com/v1/video_status.get?video_id={video_id_input}",
+                                headers={"X-Api-Key": heygen_key},
+                                timeout=15
+                            )
+                            if r.status_code == 200:
+                                vdata = r.json().get("data", {})
+                                status = vdata.get("status", "unknown")
+                                if status == "completed":
+                                    video_url = vdata.get("video_url", "")
+                                    st.success(f"✅ Vidéo prête !")
+                                    st.video(video_url)
+                                    st.markdown(f"🔗 [Télécharger la vidéo]({video_url})")
+                                elif status == "processing":
+                                    st.info("⏳ Encore en cours de génération, réessayez dans 1 min.")
+                                else:
+                                    st.warning(f"Statut : {status}")
+                        except Exception as e:
+                            st.error(f"❌ {e}")
+
+    # ── ÉTAPE 5 : EXPORT & LIVRAISON ────────────────────────────────────────
+    st.markdown("---")
+    with st.expander("⑤ Export & Livraison Client", expanded=False):
+        st.markdown("**Récapitulatif de la production UGC — prêt à livrer.**")
+
+        if 'ugc_scripts' in st.session_state.results:
+            nb_scripts = ugc_nb_scripts
+            marque_sel = st.session_state.get('ugc_marque_sel', ugc_marque)
+
+            # Tableau récapitulatif
+            recap_data = {
+                "Étape": ["① Brief", "② Scripts Mistral", "③ Voix ElevenLabs", "④ Vidéo HeyGen", "⑤ Export"],
+                "Statut": [
+                    "✅ Complété",
+                    "✅ Complété" if 'ugc_scripts' in st.session_state.results else "⏳ En attente",
+                    "✅ Complété" if 'ugc_audio' in st.session_state else "⏳ En attente",
+                    "✅ Complété" if 'ugc_video_id' in st.session_state else "⏳ En attente",
+                    "📦 Prêt"
+                ],
+                "Détail": [
+                    f"{marque_sel} | {ugc_plateforme} | {nb_scripts} vidéos",
+                    f"{nb_scripts} scripts générés",
+                    "Audio MP3 disponible" if 'ugc_audio' in st.session_state else "Non généré",
+                    f"ID: {st.session_state.get('ugc_video_id','Non généré')}",
+                    "Téléchargement disponible"
+                ]
+            }
+            st.dataframe(recap_data, use_container_width=True, hide_index=True)
+
+            # Estimation ROI
+            st.markdown("---")
+            st.markdown("### 💰 Estimation ROI UGC Factory")
+            col_r1, col_r2, col_r3 = st.columns(3)
+            cout_prod_unitaire = 5.0
+            prix_vente_unitaire = st.number_input("Prix de vente/vidéo (€)", value=150.0, step=10.0, key="prix_ugc")
+            with col_r1:
+                st.metric("Coût IA / vidéo", f"{cout_prod_unitaire:.2f} €")
+            with col_r2:
+                st.metric("Prix client / vidéo", f"{prix_vente_unitaire:.2f} €")
+            with col_r3:
+                marge_ugc = ((prix_vente_unitaire - cout_prod_unitaire) / prix_vente_unitaire * 100)
+                st.metric("Marge UGC Factory", f"{marge_ugc:.1f}%", delta="Business sans stock")
+
+            st.markdown(f"""
+            > **Pack {nb_scripts} vidéos** → Revenue : **{nb_scripts * prix_vente_unitaire:,.0f} €**
+            > | Coût IA : **{nb_scripts * cout_prod_unitaire:,.0f} €**
+            > | Profit net : **{nb_scripts * (prix_vente_unitaire - cout_prod_unitaire):,.0f} €**
+            """)
+
+            # Bouton export complet
+            export_content = f"""# 🏭 UGC FACTORY — RAPPORT DE PRODUCTION
+## Marque : {marque_sel} | Plateforme : {ugc_plateforme}
+## Date : {datetime.now().strftime('%d/%m/%Y %H:%M')}
+## Scripts produits : {nb_scripts}
+
+---
+
+{st.session_state.results.get('ugc_scripts', '')}
+
+---
+## 📊 MÉTRIQUES
+- Coût production IA : {nb_scripts * cout_prod_unitaire:.2f} €
+- Prix livraison client : {nb_scripts * prix_vente_unitaire:.2f} €
+- Marge nette : {marge_ugc:.1f}%
+- Audio généré : {'Oui' if 'ugc_audio' in st.session_state else 'Non'}
+- Vidéo HeyGen ID : {st.session_state.get('ugc_video_id', 'Non généré')}
+"""
+            st.download_button(
+                "📦 Exporter le rapport complet (.txt)",
+                data=export_content,
+                file_name=f"rapport_ugc_{marque_sel.replace('™','').replace(' ','_')}_{datetime.now().strftime('%Y%m%d')}.txt",
+                mime="text/plain",
+                use_container_width=True,
+                key="dl_rapport"
+            )
+        else:
+            st.info("💡 Lancez d'abord la génération des scripts à l'étape ②.")
+
+    # Tarifs UGC Factory
+    st.markdown("---")
+    with st.expander("💼 Grille Tarifaire UGC Factory", expanded=False):
+        tarifs = {
+            "Pack": ["Starter (5 vidéos)", "Growth (15 vidéos)", "Scale (30 vidéos)", "White-label agence"],
+            "Prix client": ["499 €", "999 €", "1 799 €", "300 €/mois + volume"],
+            "Coût IA estimé": ["25 €", "75 €", "150 €", "~50 €/mois"],
+            "Marge": ["95 %", "92 %", "91 %", "83 %+"],
+            "Délai livraison": ["24h", "48h", "72h", "Continu"]
+        }
+        st.dataframe(tarifs, use_container_width=True, hide_index=True)
+        st.caption("💡 Coût IA estimé : Mistral API (~0.5€/script) + ElevenLabs (~1€/audio) + HeyGen (~3€/vidéo)")
 
 st.divider()
 st.caption("SMD Global Consulting LLC | Brandshipping AI © 2026 | URBÆ™ · The Apex Protocol · NOVA FUEL | Propulsé par Mistral AI")
